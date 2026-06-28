@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: #F0F4F8;
+}
+
+/* ── Card hover lift ── */
+.nb-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.nb-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.11) !important;
+}
+
+/* ── Button transitions ── */
+.nb-btn {
+  transition: background 0.14s, color 0.14s, border-color 0.14s, opacity 0.14s;
+}
+
+/* ── Breaking news ticker ── */
+.nb-ticker {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: nb-tick 60s linear infinite;
+}
+@keyframes nb-tick {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Pulse dot ── */
+.nb-pulse {
+  animation: nb-pulse 1.6s ease-in-out infinite;
+}
+@keyframes nb-pulse {
+  0%, 100% { opacity: 1;   transform: scale(1);    }
+  50%       { opacity: 0.3; transform: scale(0.65); }
+}
+
+/* ── Spinning refresh icon ── */
+.nb-spin {
+  animation: nb-spin 1s linear infinite;
+}
+@keyframes nb-spin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Loading skeleton shimmer ── */
+.nb-shimmer {
+  animation: nb-shimmer 1.4s ease infinite;
+}
+@keyframes nb-shimmer {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.9;  }
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: #F0F4F8; }
+::-webkit-scrollbar-thumb        { background: #CBD5E1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover  { background: #94A3B8; }
