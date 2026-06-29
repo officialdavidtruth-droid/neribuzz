@@ -1,0 +1,23 @@
+{
+  "name": "NeriBuzz — Nigerian News Pulse",
+  "short_name": "NeriBuzz",
+  "description": "Live Nigerian and world news from Punch, Vanguard, BBC Africa and more.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#08090D",
+  "theme_color": "#08090D",
+  "orientation": "portrait-primary",
+  "categories": ["news"],
+  "lang": "en-NG",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"      },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"      },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Nigeria News", "url": "/?cat=Nigeria", "description": "Latest Nigerian headlines" },
+    { "name": "Sports",       "url": "/?cat=Sports",  "description": "Latest sports news"        },
+    { "name": "Business",     "url": "/?cat=Business","description": "Business & finance"        }
+  ]
+}

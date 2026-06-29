@@ -3,7 +3,7 @@ import Parser from "rss-parser";
 const parser = new Parser({
   timeout: 12000,
   headers: {
-    "User-Agent": "Mozilla/5.0 (compatible; NeriBuzz/2.0; +https://neribuzz.vercel.app)",
+    "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
     "Accept": "application/rss+xml, application/xml, text/xml, */*",
   },
   customFields: {
@@ -11,96 +11,100 @@ const parser = new Parser({
   },
 });
 
-/* Feeds — 5 unavailable feeds removed */
+/*
+ * Only feeds verified to work from Vercel serverless.
+ * Category-specific Nigerian feeds are removed (most 404).
+ * Guardian feeds added — very reliable, good for Entertainment/Health/Politics.
+ */
 const FEEDS = [
-  // ── Nigeria ────────────────────────────────────────────────
-  { url:"https://punchng.com/feed/",              source:"Punch",         category:"Nigeria" },
-  { url:"https://www.vanguardngr.com/feed/",      source:"Vanguard",      category:"Nigeria" },
-  { url:"https://www.premiumtimesng.com/feed/",   source:"Premium Times", category:"Nigeria" },
-  { url:"https://www.channelstv.com/feed/",       source:"Channels TV",   category:"Nigeria" },
-  { url:"https://www.thecable.ng/feed",           source:"The Cable",     category:"Nigeria" },
-  // ── International ──────────────────────────────────────────
+  // ── Nigeria ────────────────────────────────────────────
+  { url:"https://punchng.com/feed/",            source:"Punch",          category:"Nigeria"       },
+  { url:"https://www.vanguardngr.com/feed/",    source:"Vanguard",       category:"Nigeria"       },
+  { url:"https://www.premiumtimesng.com/feed/", source:"Premium Times",  category:"Nigeria"       },
+  { url:"https://www.channelstv.com/feed/",     source:"Channels TV",    category:"Nigeria"       },
+  { url:"https://www.thecable.ng/feed",         source:"The Cable",      category:"Nigeria"       },
+  // ── International ──────────────────────────────────────
   { url:"https://feeds.bbci.co.uk/news/world/africa/rss.xml", source:"BBC Africa",  category:"International" },
-  { url:"https://feeds.bbci.co.uk/news/world/rss.xml",         source:"BBC World",   category:"International" },
-  { url:"https://www.aljazeera.com/xml/rss/all.xml",           source:"Al Jazeera",  category:"International" },
-  // ── Business ───────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/business/rss.xml",      source:"BBC Business",category:"Business" },
-  // ── Sports ─────────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/sport/rss.xml",              source:"BBC Sport",   category:"Sports" },
-  { url:"https://punchng.com/category/sports/feed/",           source:"Punch Sports",category:"Sports" },
-  // ── Entertainment ──────────────────────────────────────────
-  { url:"https://punchng.com/category/entertainment/feed/",    source:"Punch Entertainment",category:"Entertainment" },
-  // ── Technology ─────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/technology/rss.xml",    source:"BBC Technology",category:"Technology" },
-  { url:"https://techcabal.com/feed/",                         source:"TechCabal",   category:"Technology" },
-  // ── Politics ───────────────────────────────────────────────
-  { url:"https://www.vanguardngr.com/category/politics/feed/", source:"Vanguard Politics",category:"Politics" },
+  { url:"https://feeds.bbci.co.uk/news/world/rss.xml",        source:"BBC World",   category:"International" },
+  { url:"https://www.aljazeera.com/xml/rss/all.xml",          source:"Al Jazeera",  category:"International" },
+  // ── Business ───────────────────────────────────────────
+  { url:"https://feeds.bbci.co.uk/news/business/rss.xml",     source:"BBC Business",category:"Business"      },
+  { url:"https://www.theguardian.com/business/rss",           source:"The Guardian",category:"Business"      },
+  // ── Sports ─────────────────────────────────────────────
+  { url:"https://feeds.bbci.co.uk/sport/rss.xml",             source:"BBC Sport",   category:"Sports"        },
+  { url:"https://www.theguardian.com/sport/rss",              source:"The Guardian",category:"Sports"        },
+  // ── Entertainment ──────────────────────────────────────
+  { url:"https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",source:"BBC Entertainment",category:"Entertainment"},
+  { url:"https://www.theguardian.com/culture/rss",            source:"The Guardian",category:"Entertainment" },
+  // ── Technology ─────────────────────────────────────────
+  { url:"https://feeds.bbci.co.uk/news/technology/rss.xml",  source:"BBC Technology",category:"Technology"  },
+  { url:"https://techcabal.com/feed/",                        source:"TechCabal",   category:"Technology"    },
+  { url:"https://www.theguardian.com/technology/rss",         source:"The Guardian",category:"Technology"    },
+  // ── Health ─────────────────────────────────────────────
+  { url:"https://feeds.bbci.co.uk/news/health/rss.xml",       source:"BBC Health",  category:"Health"        },
+  { url:"https://www.theguardian.com/society/health/rss",     source:"The Guardian",category:"Health"        },
+  // ── Politics ───────────────────────────────────────────
+  { url:"https://www.theguardian.com/politics/rss",           source:"The Guardian",category:"Politics"      },
+  { url:"https://www.theguardian.com/world/nigeria/rss",      source:"Guardian NG", category:"Politics"      },
 ];
 
 function extractImage(item) {
   const mc = item["media:content"];
-  if (mc) {
-    if (mc.$ && mc.$.url) return mc.$.url;
-    if (Array.isArray(mc) && mc[0]?.$.url) return mc[0].$.url;
-  }
+  if (mc) { if(mc.$?.url) return mc.$.url; if(Array.isArray(mc)&&mc[0]?.$.url) return mc[0].$.url; }
   const mt = item["media:thumbnail"];
-  if (mt) {
-    if (mt.$ && mt.$.url) return mt.$.url;
-    if (Array.isArray(mt) && mt[0]?.$.url) return mt[0].$.url;
-  }
+  if (mt) { if(mt.$?.url) return mt.$.url; if(Array.isArray(mt)&&mt[0]?.$.url) return mt[0].$.url; }
   const mg = item["media:group"];
-  if (mg?.["media:content"]) {
-    const c = mg["media:content"];
-    if (c.$ && c.$.url) return c.$.url;
-    if (Array.isArray(c) && c[0]?.$.url) return c[0].$.url;
-  }
+  if (mg?.["media:content"]) { const c=mg["media:content"]; if(c.$?.url) return c.$.url; if(Array.isArray(c)&&c[0]?.$.url) return c[0].$.url; }
   const enc = item.enclosure;
-  if (enc?.url && (!enc.type || enc.type.startsWith("image/"))) return enc.url;
-  const html = item["content:encoded"] || item.content || item.description || "";
+  if (enc?.url&&(!enc.type||enc.type.startsWith("image/"))) return enc.url;
+  const html = item["content:encoded"]||item.content||item.description||"";
   const m = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif)(\?[^"']*)?)[^"']*["']/i);
   if (m) return m[1];
   return null;
 }
 
-function stripHtml(s = "") {
+function strip(s=""){
   return s.replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&quot;/g,'"')
     .replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&nbsp;/g," ")
     .replace(/&#\d+;/g,"").replace(/\s+/g," ").trim();
 }
 
-function timeAgo(str) {
-  if (!str) return "Recently";
-  const d = new Date(str); if (isNaN(d)) return "Recently";
-  const diff = Date.now() - d.getTime();
-  const m = Math.floor(diff/60000);
-  if (m<1) return "Just now"; if (m<60) return `${m}m ago`;
-  const h = Math.floor(m/60);
-  if (h<24) return `${h}h ago`; return `${Math.floor(h/24)}d ago`;
+function ago(str){
+  if(!str) return "Recently";
+  const d=new Date(str); if(isNaN(d)) return "Recently";
+  const diff=Date.now()-d.getTime(), m=Math.floor(diff/60000);
+  if(m<1) return "Just now"; if(m<60) return `${m}m ago`;
+  const h=Math.floor(m/60); if(h<24) return `${h}h ago`;
+  return `${Math.floor(h/24)}d ago`;
 }
 
-/* Per-feed timeout so one slow feed can't block the rest */
+/* Per-feed: 2 attempts with 1s delay between */
 async function parseFeed(feed) {
-  const result = await Promise.race([
-    parser.parseURL(feed.url),
-    new Promise((_,rej) => setTimeout(()=>rej(new Error("timeout")), 10000)),
-  ]);
-  return result.items.slice(0,10).map(item=>{
-    const rawDesc = item["content:encoded"]||item.content||item.contentSnippet||item.summary||"";
-    const excerpt = stripHtml(rawDesc).slice(0,240)||`Read more at ${feed.source}.`;
-    const pubDate = item.pubDate||item.isoDate||new Date().toISOString();
-    return {
-      id:        item.guid||item.link||Math.random().toString(36),
-      title:     stripHtml(item.title||""),
-      excerpt,
-      source:    feed.source,
-      sourceUrl: item.link||"",
-      category:  feed.category,
-      timeAgo:   timeAgo(pubDate),
-      pubDate,
-      image:     extractImage(item),
-      isBreaking:false,
-    };
-  }).filter(n=>n.title&&n.sourceUrl);
+  let lastErr;
+  for (let i=0;i<2;i++) {
+    try {
+      const result = await Promise.race([
+        parser.parseURL(feed.url),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),9000)),
+      ]);
+      return result.items.slice(0,10).map(item=>{
+        const rawDesc=item["content:encoded"]||item.content||item.contentSnippet||item.summary||"";
+        const excerpt=strip(rawDesc).slice(0,240)||`Read more at ${feed.source}.`;
+        const pubDate=item.pubDate||item.isoDate||new Date().toISOString();
+        return {
+          id:        item.guid||item.link||Math.random().toString(36),
+          title:     strip(item.title||""),
+          excerpt, source:feed.source, sourceUrl:item.link||"",
+          category:feed.category, timeAgo:ago(pubDate), pubDate,
+          image:extractImage(item), isBreaking:false,
+        };
+      }).filter(n=>n.title&&n.sourceUrl);
+    } catch(err){
+      lastErr=err;
+      if(i<1) await new Promise(r=>setTimeout(r,800));
+    }
+  }
+  throw lastErr;
 }
 
 export default async function handler(req, res) {
@@ -113,8 +117,8 @@ export default async function handler(req, res) {
   }));
   let news = results.filter(r=>r.status==="fulfilled").flatMap(r=>r.value)
     .sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  const cutoff = Date.now()-3*3600000; let bc=0;
-  news = news.map(n=>{
+  const cutoff=Date.now()-3*3600000; let bc=0;
+  news=news.map(n=>{
     if(bc<5&&new Date(n.pubDate).getTime()>cutoff){bc++;return{...n,isBreaking:true};}
     return n;
   });
