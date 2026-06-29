@@ -698,6 +698,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
       </div>
     </>
   );
+}  // <-- Add this closing brace for WriteArticle
 
 /* ──────────────────────────────────────────────────────────
    ANALYTICS TAB
