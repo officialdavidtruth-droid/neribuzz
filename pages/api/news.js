@@ -11,36 +11,30 @@ const parser = new Parser({
   },
 });
 
-/* Feeds trimmed to highest-reliability sources only */
+/* Feeds — 5 unavailable feeds removed */
 const FEEDS = [
   // ── Nigeria ────────────────────────────────────────────────
-  { url:"https://punchng.com/feed/",              source:"Punch",          category:"Nigeria" },
-  { url:"https://www.vanguardngr.com/feed/",      source:"Vanguard",       category:"Nigeria" },
-  { url:"https://www.premiumtimesng.com/feed/",   source:"Premium Times",  category:"Nigeria" },
-  { url:"https://www.channelstv.com/feed/",       source:"Channels TV",    category:"Nigeria" },
-  { url:"https://www.thecable.ng/feed",           source:"The Cable",      category:"Nigeria" },
-  { url:"https://guardian.ng/feed/",              source:"Guardian Nigeria",category:"Nigeria" },
+  { url:"https://punchng.com/feed/",              source:"Punch",         category:"Nigeria" },
+  { url:"https://www.vanguardngr.com/feed/",      source:"Vanguard",      category:"Nigeria" },
+  { url:"https://www.premiumtimesng.com/feed/",   source:"Premium Times", category:"Nigeria" },
+  { url:"https://www.channelstv.com/feed/",       source:"Channels TV",   category:"Nigeria" },
+  { url:"https://www.thecable.ng/feed",           source:"The Cable",     category:"Nigeria" },
   // ── International ──────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/world/africa/rss.xml",  source:"BBC Africa",  category:"International" },
-  { url:"https://feeds.bbci.co.uk/news/world/rss.xml",          source:"BBC World",   category:"International" },
-  { url:"https://www.aljazeera.com/xml/rss/all.xml",            source:"Al Jazeera",  category:"International" },
+  { url:"https://feeds.bbci.co.uk/news/world/africa/rss.xml", source:"BBC Africa",  category:"International" },
+  { url:"https://feeds.bbci.co.uk/news/world/rss.xml",         source:"BBC World",   category:"International" },
+  { url:"https://www.aljazeera.com/xml/rss/all.xml",           source:"Al Jazeera",  category:"International" },
   // ── Business ───────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/business/rss.xml",       source:"BBC Business",category:"Business" },
-  { url:"https://www.vanguardngr.com/category/businesses/feed/",source:"Vanguard Business",category:"Business" },
+  { url:"https://feeds.bbci.co.uk/news/business/rss.xml",      source:"BBC Business",category:"Business" },
   // ── Sports ─────────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/sport/rss.xml",               source:"BBC Sport",  category:"Sports" },
-  { url:"https://punchng.com/category/sports/feed/",            source:"Punch Sports",category:"Sports" },
+  { url:"https://feeds.bbci.co.uk/sport/rss.xml",              source:"BBC Sport",   category:"Sports" },
+  { url:"https://punchng.com/category/sports/feed/",           source:"Punch Sports",category:"Sports" },
   // ── Entertainment ──────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",source:"BBC Entertainment",category:"Entertainment" },
-  { url:"https://punchng.com/category/entertainment/feed/",     source:"Punch Entertainment",category:"Entertainment" },
+  { url:"https://punchng.com/category/entertainment/feed/",    source:"Punch Entertainment",category:"Entertainment" },
   // ── Technology ─────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/technology/rss.xml",     source:"BBC Technology",category:"Technology" },
-  { url:"https://techcabal.com/feed/",                          source:"TechCabal",   category:"Technology" },
-  // ── Health ─────────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/health/rss.xml",         source:"BBC Health",  category:"Health" },
+  { url:"https://feeds.bbci.co.uk/news/technology/rss.xml",    source:"BBC Technology",category:"Technology" },
+  { url:"https://techcabal.com/feed/",                         source:"TechCabal",   category:"Technology" },
   // ── Politics ───────────────────────────────────────────────
-  { url:"https://punchng.com/category/politics/feed/",          source:"Punch Politics",category:"Politics" },
-  { url:"https://www.vanguardngr.com/category/politics/feed/",  source:"Vanguard Politics",category:"Politics" },
+  { url:"https://www.vanguardngr.com/category/politics/feed/", source:"Vanguard Politics",category:"Politics" },
 ];
 
 function extractImage(item) {

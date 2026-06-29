@@ -140,7 +140,7 @@ function TrendingSlideshow({ items, loading }) {
 
   useEffect(()=>{
     if(paused||slides.length<2) return;
-    timerRef.current = setInterval(()=>goTo(idx+1), 5500);
+    timerRef.current = setInterval(()=>goTo(idx+1), 5000);
     return ()=>clearInterval(timerRef.current);
   },[idx, paused, slides.length, goTo]);
 
@@ -321,7 +321,7 @@ function Header({ categories, activeCat, onCat, onHome, mobileOpen, onMobile }) 
 
       {/* Mobile overlay menu */}
       {mobileOpen && (
-        <div className="nb-overlay" style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:C.nav, zIndex:200, display:"flex", flexDirection:"column", padding:"24px" }}>
+        <div className="nb-overlay" style={{ position:"fixed", top:0, left:0, right:0, bottom:0, background:C.nav, zIndex:200, display:"flex", flexDirection:"column", padding:"24px", overflowY:"auto" }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:32 }}>
             <div style={{ fontSize:22, fontFamily:serif, fontWeight:900 }}>
               <span style={{color:C.white}}>Neri</span><span style={{color:C.cyan}}>Buzz</span>

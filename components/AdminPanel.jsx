@@ -499,7 +499,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     <>
       {showImgModal && <InsertImageModal editorRef={editorRef} onClose={()=>setImgModal(false)}/>}
 
-      <div style={{ display:"flex", height:"calc(100vh - 58px)", margin:"-28px", overflow:"hidden" }}>
+      <div style={{ display:"flex", height:"100%", overflow:"hidden" }}>
 
         {/* ── MAIN EDITOR COLUMN ──────────────────────────── */}
         <div style={{ flex:1, overflowY:"auto", background:C.editorBg, minWidth:0, display:"flex", flexDirection:"column" }}>
@@ -995,7 +995,7 @@ export default function AdminPanel() {
           </div>
         </div>
         {/* Body */}
-        <div style={{flex:1,overflow:"hidden",display:"flex"}}>
+        <div style={{flex:1,overflow:"hidden",display:"flex",minHeight:0}}>
           {showWrite ? (
             <WriteArticle editing={writing!=="new"?writing:null} categories={cats} onSave={savePost} onCancel={()=>{setWriting(null);setTab("posts");}}/>
           ) : (
