@@ -1121,17 +1121,32 @@ export default function AdminPanel() {
   const [lastRefresh,setLR]   = useState(new Date());
   const [news,    setNews]    = useState([]);
   const [feedLog, setFeedLog] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [cats,  setCats]  = useState(DEF_CATS);
+  const [posts,     setPosts]    = useState([]);
+  const [cats,      setCats]     = useState(DEF_CATS);
+  const [hidden,    setHidden]   = useState([]);
+  const [analytics, setAnalytics]= useState(null);
+  const [analLoading,setAL]      = useState(false);
 
   useEffect(()=>{
     const auth=lsGet("nb_admin_auth",null);
     if(auth&&Date.now()-auth.time<8*3600000) setAuthed(true);
-    setPosts(lsGet("nb_posts",[])); setCats(lsGet("nb_cats",DEF_CATS)); setInit(true);
+    setPosts(lsGet("nb_posts",[]));
+    setCats(lsGet("nb_cats",DEF_CATS));
+    setHidden(lsGet("nb_hidden",[]));
+    setInit(true);
   },[]);
 
   useEffect(()=>lsSet("nb_posts",posts),[posts]);
   useEffect(()=>lsSet("nb_cats",cats),[cats]);
+  useEffect(()=>lsSet("nb_hidden",hidden),[hidden]);
+
+  const loadAnalytics = useCallback(async()=>{
+    setAL(true);
+    try{ const r=await fetch("/api/analytics"); const d=await r.json(); setAnalytics(d); }catch{}
+    finally{setAL(false);}
+  },[]);
+
+  useEffect(()=>{ if(authed) loadAnalytics(); },[authed,loadAnalytics]);
 
   const loadNews=useCallback(async()=>{
     setLoading(true);
@@ -1146,7 +1161,14 @@ export default function AdminPanel() {
   if(!initDone) return <><style>{STYLES}</style><Loader text="Starting…"/></>;
   if(!authed)   return <><style>{STYLES}</style><LoginScreen onLogin={()=>setAuthed(true)}/></>;
 
-  const TABS=[{id:"dashboard",label:"Dashboard",Icon:BarChart2},{id:"posts",label:"Articles",Icon:FileText},{id:"write",label:"Write",Icon:Plus},{id:"categories",label:"Categories",Icon:Tag}];
+  const TABS=[
+    {id:"dashboard", label:"Dashboard",  Icon:BarChart2},
+    {id:"analytics", label:"Analytics",  Icon:BarChart2},
+    {id:"news",      label:"News Feed",  Icon:Globe    },
+    {id:"posts",     label:"Articles",   Icon:FileText },
+    {id:"write",     label:"Write",      Icon:Plus     },
+    {id:"categories",label:"Categories", Icon:Tag      },
+  ];
   const showWrite=writing!==null;
 
   return (
@@ -1188,6 +1210,8 @@ export default function AdminPanel() {
           ) : (
             <div style={{flex:1,padding:"28px",overflowY:"auto"}}>
               {tab==="dashboard"&&<DashboardTab posts={posts} feedLog={feedLog} news={news} loading={loading} lastRefresh={lastRefresh} onRefresh={loadNews} onEdit={pp=>{setWriting(pp);setTab("write");}} onDelete={id=>setPosts(v=>v.filter(p=>p.id!==id))} onWrite={()=>{setWriting("new");setTab("write");}}/>}
+              {tab==="analytics"&&<AnalyticsTab analytics={analytics} analyticsLoading={analLoading}/>}
+              {tab==="news"&&<NewsManageTab news={news} hidden={hidden} onToggle={id=>setHidden(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id])}/>}
               {tab==="posts"&&<PostsTab posts={posts} onEdit={pp=>{setWriting(pp);setTab("write");}} onDelete={id=>setPosts(v=>v.filter(p=>p.id!==id))} onWrite={()=>{setWriting("new");setTab("write");}}/>}
               {tab==="categories"&&<CategoriesTab categories={cats} news={news} onAdd={c=>setCats(v=>[...v,c])} onRemove={c=>setCats(v=>v.filter(x=>x!==c))}/>}
             </div>
