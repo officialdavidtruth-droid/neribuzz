@@ -1,3 +1,4 @@
+// components/AdminPanel.jsx
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Shield, LogOut, BarChart2, FileText, Plus, Tag, Edit3, Trash2,
@@ -5,6 +6,7 @@ import {
   ChevronDown, X, Link2, List, Bold, Italic, Underline,
   Strikethrough, Image as ImageIcon, Eye, EyeOff, ArrowLeft,
   Quote, ListOrdered, Minus, Scissors, Upload, ExternalLink,
+  Users, Eye, Zap, TrendingUp, Clock, Calendar, // NEW imports
 } from "lucide-react";
 
 /* ─── Tokens ──────────────────────────────────────────────── */
@@ -61,7 +63,255 @@ input[type=checkbox]{accent-color:#22D3EE;width:15px;height:15px;cursor:pointer}
 `;
 
 /* ──────────────────────────────────────────────────────────
-   IMAGE UTILITIES
+   NEW: Analytics Stats Cards (ADDED)
+   ─────────────────────────────────────────────────────── */
+function AnalyticsStats({ news, feedLog, posts, categories }) {
+  const stats = {
+    totalStories: news.length + posts.length,
+    liveNews: news.length,
+    blogPosts: posts.length,
+    breakingCount: news.filter(n => n.isBreaking).length,
+    totalCategories: categories.length,
+    sources: [...new Set([...news.map(n => n.source), ...posts.map(p => p.source)])].length,
+    feedOnline: feedLog.filter(f => f.ok).length,
+    feedTotal: feedLog.length,
+    feedsOffline: feedLog.filter(f => !f.ok).length,
+  };
+
+  const statCards = [
+    { label: "Total Stories", value: stats.totalStories, icon: <FileText size={18}/>, color: C.cyan },
+    { label: "Live News", value: stats.liveNews, icon: <Globe size={18}/>, color: "#38BDF8" },
+    { label: "Blog Posts", value: stats.blogPosts, icon: <Edit3 size={18}/>, color: C.green },
+    { label: "Breaking News", value: stats.breakingCount, icon: <Zap size={18}/>, color: C.red },
+    { label: "Categories", value: stats.totalCategories, icon: <Tag size={18}/>, color: "#A78BFA" },
+    { label: "News Sources", value: stats.sources, icon: <Users size={18}/>, color: "#F59E0B" },
+    { label: "Feeds Online", value: `${stats.feedOnline}/${stats.feedTotal}`, icon: <Wifi size={18}/>, color: stats.feedsOffline > 0 ? C.red : C.green },
+  ];
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
+        gap: 12,
+        marginBottom: 12,
+      }}>
+        {statCards.map(stat => (
+          <div key={stat.label} style={{
+            background: C.card,
+            border: `1px solid ${C.border}`,
+            borderRadius: 10,
+            padding: "14px 16px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ fontSize: 10, color: C.textMid, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                {stat.label}
+              </span>
+              <div style={{ color: stat.color }}>{stat.icon}</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: C.white }}>
+              {stat.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   NEW: Category News Viewer (ADDED)
+   ─────────────────────────────────────────────────────── */
+function CategoryNewsViewer({ categories, news, blogPosts, onDeleteNews }) {
+  const [selectedCat, setSelectedCat] = useState(categories[0] || "All");
+  const [showDelete, setShowDelete] = useState(null);
+
+  const allItems = [
+    ...news.map(n => ({ ...n, type: "news" })),
+    ...blogPosts.map(p => ({ ...p, type: "blog" })),
+  ];
+
+  const filteredItems = selectedCat === "All" 
+    ? allItems 
+    : allItems.filter(item => item.category === selectedCat);
+
+  const itemsByCategory = categories.reduce((acc, cat) => {
+    acc[cat] = allItems.filter(item => item.category === cat);
+    return acc;
+  }, {});
+
+  return (
+    <div style={{ 
+      background: C.card, 
+      border: `1px solid ${C.border}`, 
+      borderRadius: 12, 
+      overflow: "hidden",
+      marginBottom: 16,
+    }}>
+      <div style={{ 
+        padding: "14px 18px", 
+        borderBottom: `1px solid ${C.border}`,
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        flexWrap: "wrap",
+      }}>
+        <span style={{ fontSize: 12, color: C.textMid, fontWeight: 700, letterSpacing: 0.8, textTransform: "uppercase" }}>
+          📂 View by Category:
+        </span>
+        <select
+          value={selectedCat}
+          onChange={e => setSelectedCat(e.target.value)}
+          style={{
+            background: "#060A0F",
+            border: `1px solid ${C.border}`,
+            borderRadius: 7,
+            color: C.white,
+            padding: "6px 12px",
+            fontSize: 13,
+            outline: "none",
+            cursor: "pointer",
+            fontFamily: "inherit",
+          }}
+        >
+          <option value="All">All Categories ({allItems.length})</option>
+          {categories.map(cat => (
+            <option key={cat} value={cat}>
+              {cat} ({itemsByCategory[cat]?.length || 0})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ maxHeight: 400, overflowY: "auto" }}>
+        {filteredItems.length === 0 ? (
+          <div style={{ padding: "40px 20px", textAlign: "center", color: C.textMid }}>
+            <p style={{ margin: 0 }}>No stories in this category.</p>
+          </div>
+        ) : (
+          filteredItems.map(item => (
+            <div 
+              key={item.id} 
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "10px 18px",
+                borderBottom: `1px solid ${C.border}`,
+                gap: 12,
+                transition: "background .15s",
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,.02)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                  <span style={{ 
+                    fontSize: 9, 
+                    fontWeight: 700, 
+                    padding: "1px 6px", 
+                    borderRadius: 3,
+                    background: item.type === "blog" ? C.cyanGlow : "rgba(255,255,255,.06)",
+                    color: item.type === "blog" ? C.cyan : C.textMid,
+                    border: `1px solid ${item.type === "blog" ? C.cyanBorder : C.border}`,
+                  }}>
+                    {item.type === "blog" ? "BLOG" : "NEWS"}
+                  </span>
+                  <span style={{ fontSize: 10, color: C.textMid }}>{item.source}</span>
+                  {item.isBreaking && (
+                    <span style={{ fontSize: 9, fontWeight: 700, color: C.red }}>● BREAKING</span>
+                  )}
+                </div>
+                <span style={{ 
+                  fontSize: 13, 
+                  color: C.text, 
+                  display: "block",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}>
+                  {item.title}
+                </span>
+                <div style={{ display: "flex", gap: 12, marginTop: 2 }}>
+                  <span style={{ fontSize: 10, color: C.textFaint }}>{item.category}</span>
+                  <span style={{ fontSize: 10, color: C.textFaint }}>{item.timeAgo || "Recently"}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (showDelete === item.id) {
+                    onDeleteNews?.(item.id);
+                    setShowDelete(null);
+                  } else {
+                    setShowDelete(item.id);
+                    setTimeout(() => setShowDelete(null), 3000);
+                  }
+                }}
+                style={{
+                  padding: "4px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: showDelete === item.id ? C.redSolid : "rgba(239,68,68,.15)",
+                  color: showDelete === item.id ? "#fff" : C.red,
+                  fontSize: 11,
+                  fontWeight: showDelete === item.id ? 700 : 500,
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  transition: "all .15s",
+                }}
+              >
+                {showDelete === item.id ? "Confirm Delete" : "✕ Delete"}
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   NEW: Detailed Feed Status (ADDED)
+   ─────────────────────────────────────────────────────── */
+function FeedStatusDetailed({ feedLog }) {
+  return (
+    <div style={{ 
+      background: C.card, 
+      border: `1px solid ${C.border}`, 
+      borderRadius: 12, 
+      padding: "16px 20px",
+      marginBottom: 16,
+    }}>
+      <h3 style={{ margin: "0 0 14px", fontSize: 14, fontWeight: 700, color: C.white }}>
+        📡 RSS Feed Status
+      </h3>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 6 }}>
+        {feedLog.map(f => (
+          <div key={f.source} style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "6px 10px",
+            borderRadius: 6,
+            background: f.ok ? "rgba(52,211,153,.06)" : "rgba(248,113,113,.06)",
+            border: `1px solid ${f.ok ? "rgba(52,211,153,.15)" : "rgba(248,113,113,.15)"}`,
+          }}>
+            {f.ok ? <CheckCircle size={12} color={C.green}/> : <AlertCircle size={12} color={C.red}/>}
+            <span style={{ fontSize: 12, color: f.ok ? C.text : C.textMid, flex: 1 }}>
+              {f.source}
+            </span>
+            <span style={{ fontSize: 11, color: f.ok ? C.green : C.red }}>
+              {f.ok ? `${f.count} stories` : "❌ offline"}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────
+   IMAGE UTILITIES (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 
 /** Canvas-compress a File → base64 JPEG string */
@@ -95,7 +345,7 @@ function fmtBytes(b) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   DROP ZONE  — drag-drop + click-to-browse, auto-compress
+   DROP ZONE (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function DropZone({ onImage, compact = false, label = "Drag & drop image here" }) {
   const [over,       setOver]   = useState(false);
@@ -111,7 +361,6 @@ function DropZone({ onImage, compact = false, label = "Drag & drop image here" }
     try {
       const origSize = file.size;
       const b64 = await compressImage(file);
-      // b64 is "data:image/jpeg;base64,..." — calc compressed size
       const compSize = Math.round((b64.length * 3) / 4);
       setInfo(`Compressed: ${fmtBytes(origSize)} → ${fmtBytes(compSize)}`);
       onImage(b64);
@@ -164,10 +413,10 @@ function DropZone({ onImage, compact = false, label = "Drag & drop image here" }
 }
 
 /* ──────────────────────────────────────────────────────────
-   INSERT IMAGE MODAL  (for inline content images)
+   INSERT IMAGE MODAL (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function InsertImageModal({ editorRef, onClose }) {
-  const [mode,    setMode]   = useState("upload"); // "upload" | "url"
+  const [mode,    setMode]   = useState("upload");
   const [url,     setUrl]    = useState("");
   const [preview, setPreview]= useState(null);
   const [imgErr,  setImgErr] = useState(false);
@@ -179,7 +428,6 @@ function InsertImageModal({ editorRef, onClose }) {
     const src = url || preview;
     if (!src) return;
     editorRef.current?.focus();
-    // Build img tag with optional alt
     const alt = altText || "image";
     document.execCommand("insertHTML", false, `<img src="${src}" alt="${alt}" />`);
     onClose();
@@ -191,13 +439,11 @@ function InsertImageModal({ editorRef, onClose }) {
     <div style={{ position:"fixed", inset:0, background:"rgba(4,5,7,.88)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:20 }}>
       <div style={{ background:"#0D1117", border:`1px solid ${C.border}`, borderRadius:14, width:"100%", maxWidth:500, boxShadow:"0 28px 70px rgba(0,0,0,.6)", overflow:"hidden" }}>
 
-        {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 22px", borderBottom:`1px solid ${C.border}` }}>
           <h3 style={{ margin:0, fontSize:16, fontWeight:800, color:C.white, fontFamily:serif }}>Insert Image</h3>
           <button onClick={onClose} className="nb-btn" style={{ background:"transparent", border:"none", color:C.textMid, cursor:"pointer", padding:4, display:"flex" }}><X size={18}/></button>
         </div>
 
-        {/* Tabs */}
         <div style={{ display:"flex", borderBottom:`1px solid ${C.border}` }}>
           {[["upload","Upload File"],["url","Paste URL"]].map(([id,label])=>(
             <button key={id} onClick={()=>setMode(id)} className="nb-btn"
@@ -219,7 +465,6 @@ function InsertImageModal({ editorRef, onClose }) {
             </div>
           )}
 
-          {/* Preview */}
           {(url||preview)&&!imgErr&&(
             <div style={{ marginTop:14, borderRadius:9, overflow:"hidden", maxHeight:220, background:"#040608", position:"relative" }}>
               <img src={url||preview} alt="preview" referrerPolicy="no-referrer"
@@ -231,7 +476,6 @@ function InsertImageModal({ editorRef, onClose }) {
           )}
           {imgErr&&<p style={{margin:"8px 0 0",fontSize:12,color:C.red}}>⚠ Image failed to load — check the URL</p>}
 
-          {/* Alt text */}
           {(url||preview)&&!imgErr&&(
             <div style={{ marginTop:14 }}>
               <label style={{ fontSize:11, fontWeight:700, color:C.textMid, display:"block", marginBottom:7, letterSpacing:.8, textTransform:"uppercase" }}>Alt Text (optional)</label>
@@ -240,7 +484,6 @@ function InsertImageModal({ editorRef, onClose }) {
             </div>
           )}
 
-          {/* Actions */}
           <div style={{ display:"flex", gap:10, marginTop:18 }}>
             <button onClick={onClose} className="nb-btn"
               style={{ flex:1, padding:"10px", border:`1px solid ${C.border}`, borderRadius:8, background:"transparent", color:C.textMid, fontSize:13, cursor:"pointer" }}>
@@ -258,7 +501,7 @@ function InsertImageModal({ editorRef, onClose }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   SIDEBAR PANEL  (collapsible)
+   SIDEBAR PANEL (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function SidebarPanel({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -274,7 +517,7 @@ function SidebarPanel({ title, children, defaultOpen = true }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   FEATURED IMAGE PANEL
+   FEATURED IMAGE PANEL (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function FeaturedImagePanel({ coverImg, setCoverImg }) {
   const [useUrl, setUseUrl] = useState(false);
@@ -288,7 +531,6 @@ function FeaturedImagePanel({ coverImg, setCoverImg }) {
   return (
     <SidebarPanel title="Featured Image" defaultOpen={true}>
       {coverImg ? (
-        /* ── Image set — show preview ── */
         <div>
           <div style={{ borderRadius:8, overflow:"hidden", marginBottom:10, position:"relative", background:"#040608" }}>
             {!imgErr ? (
@@ -320,13 +562,11 @@ function FeaturedImagePanel({ coverImg, setCoverImg }) {
               <button onClick={applyUrl} className="nb-btn" style={{ padding:"8px 12px", background:C.cyanGlow, border:`1px solid ${C.cyanBorder}`, borderRadius:7, color:C.cyan, fontSize:12, cursor:"pointer" }}>OK</button>
             </div>
           )}
-          {/* Replace by dragging new image */}
           <div style={{ marginTop:10 }}>
             <DropZone onImage={src=>{ setCoverImg(src); setImgErr(false); }} compact={true}/>
           </div>
         </div>
       ) : (
-        /* ── No image — show upload + URL ── */
         <div>
           <DropZone onImage={setCoverImg} label="Drag & drop cover image"/>
           <div style={{ display:"flex", alignItems:"center", gap:8, margin:"14px 0" }}>
@@ -350,7 +590,7 @@ function FeaturedImagePanel({ coverImg, setCoverImg }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   WRITE ARTICLE  (WordPress-style two-column editor)
+   WRITE ARTICLE (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function WriteArticle({ editing, categories, onSave, onCancel }) {
   const [title,      setTitle]    = useState(editing?.title||"");
@@ -371,10 +611,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
   const [saved,      setSaved]    = useState(false);
   const editorRef = useRef(null);
 
-  /* Slug from title */
   const slug = title.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").slice(0,60)||"your-article-title";
 
-  /* Init editor content */
   useEffect(()=>{
     if(editorRef.current){
       editorRef.current.innerHTML = editing?.content||"";
@@ -382,7 +620,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   },[]);
 
-  /* Auto-excerpt */
   const refreshExcerpt = useCallback(()=>{
     if(!customEx&&editorRef.current){
       const text=(editorRef.current.innerText||"").trim();
@@ -390,14 +627,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   },[customEx]);
 
-  /* Track active formats */
   const checkFmts = ()=>{
     const f={};
     ["bold","italic","underline","strikeThrough"].forEach(k=>{ try{f[k]=document.queryCommandState(k);}catch{f[k]=false;} });
     setFmts(f);
   };
 
-  /* execCommand shortcut */
   const exec = (cmd,val=null)=>{
     editorRef.current?.focus();
     document.execCommand(cmd,false,val);
@@ -405,13 +640,11 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     refreshExcerpt();
   };
 
-  /* Insert link */
   const insertLink = ()=>{
     const url=prompt("Enter URL (include https://):");
     if(url){ exec("createLink",url); }
   };
 
-  /* Keyboard shortcuts */
   const handleKeyDown = e=>{
     if(e.ctrlKey||e.metaKey){
       if(e.key==="b"){e.preventDefault();exec("bold");}
@@ -421,7 +654,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Clipboard paste — handles image paste from clipboard / screenshots */
   const handlePaste = async e=>{
     const items = Array.from(e.clipboardData?.items||[]);
     const imgItem = items.find(i=>i.type.startsWith("image/"));
@@ -438,14 +670,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Drop image onto editor area */
   const handleEditorDrop = async e=>{
     const file = e.dataTransfer.files[0];
     if(file?.type.startsWith("image/")){
       e.preventDefault();
       try{
         const b64 = await compressImage(file);
-        // Try to position at drop point
         const range = document.caretRangeFromPoint?.(e.clientX,e.clientY);
         if(range){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
         document.execCommand("insertHTML",false,`<img src="${b64}" alt="dropped image"/>`);
@@ -454,14 +684,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Tags */
   const addTag = ()=>{
     const t=tagInput.trim().toLowerCase();
     if(t&&!tags.includes(t)) setTags(v=>[...v,t]);
     setTagInput("");
   };
 
-  /* Save */
   const handleSave = (draft=false)=>{
     if(!title.trim()){setMsg({text:"Headline is required.",ok:false});return;}
     const content=editorRef.current?.innerHTML||"";
@@ -483,7 +711,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     setTimeout(()=>onSave(post,!!editing),700);
   };
 
-  /* Toolbar button component */
   const TB = ({cmd,val,label,Icon,title:tt,active,onClick,wide})=>(
     <button title={tt} onClick={onClick||(e=>{e.preventDefault();exec(cmd,val);})}
       className={`nb-tool${active?" nb-tool-active":""}`}
@@ -501,10 +728,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
 
       <div style={{ display:"flex", height:"100%", overflow:"hidden" }}>
 
-        {/* ── MAIN EDITOR COLUMN ──────────────────────────── */}
         <div style={{ flex:1, overflowY:"auto", background:C.editorBg, minWidth:0, display:"flex", flexDirection:"column" }}>
 
-          {/* Sticky top bar */}
           <div style={{ position:"sticky", top:0, zIndex:10, background:C.editorBg, borderBottom:`1px solid ${C.border}`, padding:"9px 24px", display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
             <button onClick={onCancel} className="nb-btn"
               style={{ display:"flex",alignItems:"center",gap:6,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,padding:"6px 12px",borderRadius:7,fontSize:12,cursor:"pointer" }}>
@@ -527,7 +752,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </button>
           </div>
 
-          {/* Title + permalink */}
           <div style={{ padding:"28px 36px 0" }}>
             <input type="text" value={title} onChange={e=>setTitle(e.target.value)}
               placeholder="Add title"
@@ -543,7 +767,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </div>
           </div>
 
-          {/* Toolbar */}
           <div style={{ padding:"0 36px 0" }}>
             <div style={{ display:"flex",alignItems:"center",flexWrap:"wrap",gap:3,padding:"8px 12px",background:C.nav,border:`1px solid ${C.border}`,borderRadius:"8px 8px 0 0" }}>
               <TB cmd="formatBlock" val="p"  label="¶"  tt="Paragraph"/>
@@ -566,7 +789,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               <TB cmd="removeFormat" Icon={Scissors} tt="Clear Formatting"/>
             </div>
 
-            {/* Image upload hint bar */}
             <div style={{ background:"rgba(34,211,238,.04)", border:`1px solid ${C.border}`, borderTop:"none", padding:"7px 14px", display:"flex", alignItems:"center", gap:8 }}>
               <ImageIcon size={13} style={{color:C.cyanDim,flexShrink:0}}/>
               <span style={{fontSize:11,color:C.textMid}}>
@@ -575,7 +797,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </div>
           </div>
 
-          {/* Content editable */}
           <div style={{ flex:1, padding:"0 36px 40px" }}>
             <div
               ref={editorRef}
@@ -595,10 +816,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
         </div>
 
-        {/* ── RIGHT SIDEBAR ────────────────────────────────── */}
         <div style={{ width:272, flexShrink:0, background:C.sidebarBg, borderLeft:`1px solid ${C.border}`, overflowY:"auto", display:"flex", flexDirection:"column" }}>
 
-          {/* PUBLISH */}
           <SidebarPanel title="Publish" defaultOpen={true}>
             <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,fontSize:13 }}>
               <span style={{color:C.textMid}}>Status</span>
@@ -624,10 +843,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </button>
           </SidebarPanel>
 
-          {/* FEATURED IMAGE */}
           <FeaturedImagePanel coverImg={coverImg} setCoverImg={setCoverImg}/>
 
-          {/* CATEGORIES */}
           <SidebarPanel title="Categories" defaultOpen={true}>
             <div style={{ maxHeight:180,overflowY:"auto",display:"flex",flexDirection:"column",gap:7 }}>
               {categories.map(cat=>(
@@ -640,7 +857,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </div>
           </SidebarPanel>
 
-          {/* TAGS */}
           <SidebarPanel title="Tags" defaultOpen={false}>
             {tags.length>0&&(
               <div style={{ display:"flex",flexWrap:"wrap",gap:5,marginBottom:10 }}>
@@ -665,7 +881,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             <p style={{margin:"7px 0 0",fontSize:10,color:C.textMid}}>Separate with comma or Enter</p>
           </SidebarPanel>
 
-          {/* EXCERPT */}
           <SidebarPanel title="Excerpt" defaultOpen={false}>
             <p style={{margin:"0 0 8px",fontSize:11,color:C.textMid,lineHeight:1.5}}>
               {customEx?"Custom excerpt:":"Auto-generated from first paragraph:"}
@@ -682,7 +897,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             )}
           </SidebarPanel>
 
-          {/* ATTRIBUTES */}
           <SidebarPanel title="Post Attributes" defaultOpen={true}>
             <label style={{ display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer" }}>
               <input type="checkbox" checked={isBreaking} onChange={e=>setBrk(e.target.checked)} style={{marginTop:2}}/>
@@ -701,15 +915,20 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   DASHBOARD, POSTS, CATEGORIES tabs (unchanged)
+   UPDATED: DashboardTab (ADDED new features)
    ─────────────────────────────────────────────────────── */
-function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, onEdit, onDelete, onWrite }) {
+function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, onEdit, onDelete, onWrite, categories }) {
   const [del,setDel]=useState(null);
   const cfm=id=>{ if(del===id){onDelete(id);setDel(null);}else{setDel(id);setTimeout(()=>setDel(null),3000);} };
   const p={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"18px 22px",marginBottom:16};
+
   return (
     <div className="nb-fade">
       <h2 style={{margin:"0 0 22px",fontSize:21,fontWeight:800,color:C.white,fontFamily:serif}}>Dashboard</h2>
+      
+      {/* NEW: Analytics Stats */}
+      <AnalyticsStats news={news} feedLog={feedLog} posts={posts} categories={categories} />
+
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(165px,1fr))",gap:12,marginBottom:20}}>
         {[
           {label:"Live Stories",val:news.length,                     Icon:Globe,   col:"#38BDF8"},
@@ -728,6 +947,18 @@ function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, o
           </div>
         ))}
       </div>
+
+      {/* NEW: Detailed Feed Status */}
+      <FeedStatusDetailed feedLog={feedLog} />
+
+      {/* NEW: Category News Viewer */}
+      <CategoryNewsViewer 
+        categories={categories} 
+        news={news} 
+        blogPosts={posts}
+        onDeleteNews={onDelete}
+      />
+
       <div style={{...p,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:14}}>
         <div>
           <p style={{margin:0,fontSize:14,fontWeight:700,color:C.white}}>RSS Feed Status</p>
@@ -738,6 +969,7 @@ function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, o
           <RefreshCw size={13} style={{animation:loading?"nbspin .8s linear infinite":"none"}}/> Refresh Now
         </button>
       </div>
+
       {feedLog.length>0&&(
         <div style={p}>
           <h3 style={{margin:"0 0 12px",fontSize:13,fontWeight:700,color:C.white}}>Feed Log ({feedLog.filter(f=>f.ok).length}/{feedLog.length} online)</h3>
@@ -752,6 +984,7 @@ function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, o
           </div>
         </div>
       )}
+
       <div style={{...p,background:"rgba(34,211,238,.04)",borderColor:C.cyanBorder,display:"flex",alignItems:"center",justifyContent:"space-between",gap:14}}>
         <div>
           <p style={{margin:0,fontSize:14,fontWeight:700,color:C.white}}>Write a News Article</p>
@@ -762,6 +995,7 @@ function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, o
           <Plus size={14}/> Write Article
         </button>
       </div>
+
       {posts.length>0&&(
         <div>
           <h3 style={{margin:"0 0 12px",fontSize:13,fontWeight:700,color:C.white}}>Recent Articles</h3>
@@ -788,6 +1022,9 @@ function DashboardTab({ posts, feedLog, news, loading, lastRefresh, onRefresh, o
   );
 }
 
+/* ──────────────────────────────────────────────────────────
+   POSTS TAB (UNCHANGED)
+   ─────────────────────────────────────────────────────── */
 function PostsTab({ posts, onEdit, onDelete, onWrite }) {
   const [del,setDel]=useState(null);
   const cfm=id=>{ if(del===id){onDelete(id);setDel(null);}else{setDel(id);setTimeout(()=>setDel(null),3000);} };
@@ -838,6 +1075,9 @@ function PostsTab({ posts, onEdit, onDelete, onWrite }) {
   );
 }
 
+/* ──────────────────────────────────────────────────────────
+   CATEGORIES TAB (UNCHANGED)
+   ─────────────────────────────────────────────────────── */
 function CategoriesTab({ categories, news, onAdd, onRemove }) {
   const [ncat,setNcat]=useState(""); const [msg,setMsg]=useState("");
   const p={background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"20px 22px",marginBottom:16};
@@ -874,7 +1114,7 @@ function CategoriesTab({ categories, news, onAdd, onRemove }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   MAIN AdminPanel
+   LOADER & LOGIN (UNCHANGED)
    ─────────────────────────────────────────────────────── */
 function Loader({ text="Loading…" }) {
   return (
@@ -925,6 +1165,9 @@ function LoginScreen({ onLogin }) {
   );
 }
 
+/* ──────────────────────────────────────────────────────────
+   MAIN AdminPanel (UPDATED to pass categories)
+   ─────────────────────────────────────────────────────── */
 export default function AdminPanel() {
   const [authed,  setAuthed]  = useState(false);
   const [initDone,setInit]    = useState(false);
@@ -953,8 +1196,21 @@ export default function AdminPanel() {
   },[]);
 
   useEffect(()=>{ if(authed) loadNews(); },[authed,loadNews]);
-  const logout=()=>{ lsSet("nb_admin_auth",null); setAuthed(false); };
+  
+  const logout=()=>{ lsSet("nb_admin_auth", null); setAuthed(false); };
   const savePost=(post,isEdit)=>{ if(isEdit)setPosts(v=>v.map(p=>p.id===post.id?post:p));else setPosts(v=>[post,...v]); setWriting(null);setTab("posts"); };
+  
+  // Handle deleting any news item
+  const deleteNewsItem = (id) => {
+    // Try to delete from news first
+    const foundInNews = news.some(n => n.id === id);
+    if (foundInNews) {
+      setNews(prev => prev.filter(n => n.id !== id));
+      return;
+    }
+    // If not in news, try to delete from posts
+    setPosts(prev => prev.filter(p => p.id !== id));
+  };
 
   if(!initDone) return <><style>{STYLES}</style><Loader text="Starting…"/></>;
   if(!authed)   return <><style>{STYLES}</style><LoginScreen onLogin={()=>setAuthed(true)}/></>;
@@ -966,7 +1222,6 @@ export default function AdminPanel() {
     <>
       <style>{STYLES}</style>
       <div style={{minHeight:"100vh",background:C.page,display:"flex",flexDirection:"column"}}>
-        {/* Topbar */}
         <div style={{background:C.nav,borderBottom:`1px solid ${C.navBorder}`,padding:"0 24px",display:"flex",alignItems:"center",justifyContent:"space-between",height:58,flexShrink:0,zIndex:20,position:"relative"}}>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
             <div style={{fontSize:19,fontFamily:serif,fontWeight:900}}><span style={{color:C.white}}>Neri</span><span style={{color:C.cyan}}>Buzz</span></div>
@@ -994,13 +1249,23 @@ export default function AdminPanel() {
             </button>
           </div>
         </div>
-        {/* Body */}
         <div style={{flex:1,overflow:"hidden",display:"flex",minHeight:0}}>
           {showWrite ? (
             <WriteArticle editing={writing!=="new"?writing:null} categories={cats} onSave={savePost} onCancel={()=>{setWriting(null);setTab("posts");}}/>
           ) : (
             <div style={{flex:1,padding:"28px",overflowY:"auto"}}>
-              {tab==="dashboard"&&<DashboardTab posts={posts} feedLog={feedLog} news={news} loading={loading} lastRefresh={lastRefresh} onRefresh={loadNews} onEdit={pp=>{setWriting(pp);setTab("write");}} onDelete={id=>setPosts(v=>v.filter(p=>p.id!==id))} onWrite={()=>{setWriting("new");setTab("write");}}/>}
+              {tab==="dashboard"&&<DashboardTab 
+                posts={posts} 
+                feedLog={feedLog} 
+                news={news} 
+                loading={loading} 
+                lastRefresh={lastRefresh} 
+                onRefresh={loadNews} 
+                onEdit={pp=>{setWriting(pp);setTab("write");}} 
+                onDelete={deleteNewsItem}
+                onWrite={()=>{setWriting("new");setTab("write");}}
+                categories={cats}
+              />}
               {tab==="posts"&&<PostsTab posts={posts} onEdit={pp=>{setWriting(pp);setTab("write");}} onDelete={id=>setPosts(v=>v.filter(p=>p.id!==id))} onWrite={()=>{setWriting("new");setTab("write");}}/>}
               {tab==="categories"&&<CategoriesTab categories={cats} news={news} onAdd={c=>setCats(v=>[...v,c])} onRemove={c=>setCats(v=>v.filter(x=>x!==c))}/>}
             </div>
