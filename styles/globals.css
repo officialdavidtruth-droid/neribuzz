@@ -1,52 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #08090D; font-family: 'Inter', system-ui, sans-serif; color: #CBD5E1; -webkit-font-smoothing: antialiased; }
 
-html, body {
-  margin: 0; padding: 0;
-  background: #08090D;
-  font-family: 'Inter', system-ui, sans-serif;
-  color: #CBD5E1;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ── Card hover ── */
+/* Card hover */
 .nb-card { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .nb-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(34,211,238,.18) !important; }
 
-/* ── Button ── */
-.nb-btn { transition: background .15s, color .15s, border-color .15s, opacity .15s, box-shadow .15s; }
+/* Buttons */
+.nb-btn { transition: background .15s, color .15s, border-color .15s, opacity .15s; }
 
-/* ── Breaking ticker ── */
-.nb-ticker { display: inline-flex; white-space: nowrap; animation: tick 65s linear infinite; }
-@keyframes tick { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+/* Breaking ticker */
+.nb-ticker { display: inline-flex; white-space: nowrap; animation: nb-tick 65s linear infinite; }
+@keyframes nb-tick { from { transform: translateX(0) } to { transform: translateX(-50%) } }
 
-/* ── Pulse dot ── */
-.nb-pulse { animation: pulse 1.8s ease-in-out infinite; }
-@keyframes pulse { 0%,100% { opacity:1; transform:scale(1) } 50% { opacity:.25; transform:scale(.55) } }
+/* Pulse dot */
+.nb-pulse { animation: nb-pulse 1.8s ease-in-out infinite; }
+@keyframes nb-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.55)} }
 
-/* ── Spin ── */
-.nb-spin { animation: spin 1s linear infinite; display: inline-block; }
-@keyframes spin { to { transform: rotate(360deg) } }
+/* Spin */
+.nb-spin { animation: nb-spin 1s linear infinite; display: inline-block; }
+@keyframes nb-spin { to { transform: rotate(360deg) } }
 
-/* ── Shimmer skeleton ── */
-.nb-shimmer { animation: shimmer 1.5s ease infinite; }
-@keyframes shimmer { 0%,100% { opacity:.3 } 50% { opacity:.7 } }
+/* Skeleton shimmer */
+.nb-shimmer { animation: nb-shimmer 1.5s ease infinite; }
+@keyframes nb-shimmer { 0%,100%{opacity:.3} 50%{opacity:.7} }
 
-/* ── Image hover zoom ── */
+/* Image zoom on hover */
 .nb-img-wrap img { transition: transform .4s ease; }
 .nb-card:hover .nb-img-wrap img { transform: scale(1.04); }
 
-/* ── Fade in ── */
-.nb-fade { animation: fadein .35s ease; }
-@keyframes fadein { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }
+/* Fade-in */
+.nb-fade { animation: nb-fade .35s ease; }
+@keyframes nb-fade { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
 
-/* ── Scrollbar ── */
+/* Page loader ring */
+.nb-ring {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 3px solid rgba(34,211,238,.15);
+  border-top-color: #22D3EE;
+  animation: nb-spin .8s linear infinite;
+}
+
+/* Slideshow */
+.nb-slide { position: absolute; inset: 0; transition: opacity .7s ease, transform .7s ease; }
+.nb-slide-active  { opacity: 1;  transform: scale(1);    z-index: 1; }
+.nb-slide-inactive{ opacity: 0;  transform: scale(1.02); z-index: 0; }
+
+/* Dot indicators */
+.nb-dot { transition: width .3s ease, background .3s ease; cursor: pointer; }
+
+/* Mobile menu overlay */
+.nb-overlay { animation: nb-slide-down .25s ease; }
+@keyframes nb-slide-down { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
+
+/* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: #08090D; }
 ::-webkit-scrollbar-thumb { background: #1E2D3D; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #2A3F55; }
 
-/* ── Remove outline on mouse users, keep for keyboard ── */
+/* Focus visible */
 :focus:not(:focus-visible) { outline: none; }
 :focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; }
