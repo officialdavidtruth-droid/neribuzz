@@ -381,12 +381,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
       editorRef.current.innerHTML = editing?.content||"";
       document.execCommand("defaultParagraphSeparator",false,"p");
     }
-useEffect(()=>{
-  if(editorRef.current){
-    editorRef.current.innerHTML = editing?.content||"";
-    document.execCommand("defaultParagraphSeparator",false,"p");
-  }
-},[editing]); // ← Changed dependency
+  },[editing]);
 
   /* Auto-excerpt */
   const refreshExcerpt = useCallback(()=>{
@@ -697,22 +692,21 @@ useEffect(()=>{
                 <p style={{margin:"3px 0 0",fontSize:11,color:C.textMid}}>Adds red badge + includes in live ticker</p>
               </div>
             </label>
-             </label>
-    </SidebarPanel>
+          </SidebarPanel>
 
-    <div style={{flex:1,minHeight:32}}/>
-    </div>
-    </div>
+          <div style={{flex:1,minHeight:32}}/>
+        </div>
+      </div>
     </>
   );
-}  // <-- This closes the WriteArticle component
+}
 
-//<--Add this closing brace for WriteArticle
-
-/*
-ANALYTICS TAB
-*/
+/* ──────────────────────────────────────────────────────────
+   ANALYTICS TAB
+   ─────────────────────────────────────────────────────── */
 function AnalyticsTab({ analytics, analyticsLoading }) {
+  const last7    = analytics?.last7Days  || [];
+  const cats     = analytics?.byCategory || {};
   const articles = analytics?.topArticles|| [];
   const maxBar   = Math.max(...last7.map(([,v])=>v), 1);
   const maxCat   = Math.max(...Object.values(cats), 1);
@@ -1229,8 +1223,3 @@ export default function AdminPanel() {
     </>
   );
 }
-
-/* ═══════════════════════════════════════════════════════════
-   ANALYTICS TAB  (appended to AdminPanel.jsx exports above)
-   These replace the export in the existing file — see README.
-   ══════════════════════════════════════════════════════════ */
