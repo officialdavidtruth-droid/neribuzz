@@ -5,6 +5,7 @@
     "react/no-unescaped-entities": "off",
     "@next/next/no-img-element": "off",
     "no-unused-vars": "warn",
-    "jsx-a11y/alt-text": "warn"
+    "jsx-a11y/alt-text": "warn",
+    "@next/next/no-html-link-for-pages": "off"
   }
 }

@@ -1106,7 +1106,7 @@ function LoginScreen({ onLogin }) {
           </div>
         </div>
         <button onClick={attempt} disabled={busy} style={{width:"100%",padding:14,background:busy?C.cyanDim:C.cyan,border:"none",borderRadius:9,color:"#040507",fontSize:15,fontWeight:700,cursor:busy?"not-allowed":"pointer"}}>{busy?"Verifying…":"Sign In"}</button>
-        <a href="/" style={{display:"block",textAlign:"center",marginTop:14,color:C.textMid,fontSize:13,textDecoration:"none"}}>← Back to NeriBuzz</a>
+        <Link href="/" style={{display:"block",textAlign:"center",marginTop:14,color:C.textMid,fontSize:13,textDecoration:"none"}}>← Back to NeriBuzz</Link>
         <p style={{textAlign:"center",fontSize:11,color:C.textFaint,margin:"20px 0 0"}}>admin / neribuzz2025 · change via Vercel env var</p>
       </div>
     </div>
@@ -1193,7 +1193,7 @@ export default function AdminPanel() {
             ))}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <a href="/" className="nb-btn" style={{display:"flex",alignItems:"center",gap:6,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,padding:"7px 14px",borderRadius:8,fontSize:12,textDecoration:"none"}}>← Live Site</a>
+            <Link href="/" className="nb-btn" style={{display:"flex",alignItems:"center",gap:6,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,padding:"7px 14px",borderRadius:8,fontSize:12,textDecoration:"none"}}>← Live Site</Link>
             <button onClick={loadNews} disabled={loading} className="nb-btn"
               style={{display:"flex",alignItems:"center",gap:6,background:C.cyanGlow,border:`1px solid ${C.cyanBorder}`,color:C.cyan,padding:"7px 14px",borderRadius:8,fontSize:12,cursor:loading?"not-allowed":"pointer",opacity:loading?.7:1}}>
               <RefreshCw size={13} style={{animation:loading?"nbspin .8s linear infinite":"none"}}/>{loading?"Loading…":"Refresh"}
