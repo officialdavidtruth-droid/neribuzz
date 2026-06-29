@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
+import {Link from "next/link";
   Shield, LogOut, BarChart2, FileText, Plus, Tag, Edit3, Trash2,
   CheckCircle, AlertCircle, Wifi, WifiOff, RefreshCw, Globe,
   ChevronDown, X, Link2, List, Bold, Italic, Underline,
@@ -380,7 +380,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
       editorRef.current.innerHTML = editing?.content||"";
       document.execCommand("defaultParagraphSeparator",false,"p");
     }
-  },[]);
+useEffect(()=>{
+  if(editorRef.current){
+    editorRef.current.innerHTML = editing?.content||"";
+    document.execCommand("defaultParagraphSeparator",false,"p");
+  }
+},[editing]); // ← Changed dependency
 
   /* Auto-excerpt */
   const refreshExcerpt = useCallback(()=>{
