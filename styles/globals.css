@@ -1,3 +1,4 @@
+/* styles/globals.css */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Inter:wght@400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -63,3 +64,12 @@ html, body { margin: 0; padding: 0; background: #08090D; font-family: 'Inter', s
 /* Focus visible */
 :focus:not(:focus-visible) { outline: none; }
 :focus-visible { outline: 2px solid #22D3EE; outline-offset: 2px; }
+
+/* Notification badge pulse */
+@keyframes nb-notif-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+.nb-notif-badge {
+  animation: nb-notif-pulse 1.5s ease-in-out infinite;
+}

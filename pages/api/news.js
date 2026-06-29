@@ -1,9 +1,10 @@
+// pages/api/news.js
 import Parser from "rss-parser";
 
 const parser = new Parser({
-  timeout: 12000,
+  timeout: 15000,
   headers: {
-    "User-Agent": "Mozilla/5.0 (compatible; NeriBuzz/2.0; +https://neribuzz.vercel.app)",
+    "User-Agent": "Mozilla/5.0 (compatible; NeriBuzz/3.0; +https://neribuzz.vercel.app)",
     "Accept": "application/rss+xml, application/xml, text/xml, */*",
   },
   customFields: {
@@ -11,54 +12,68 @@ const parser = new Parser({
   },
 });
 
-/* Feeds — 5 unavailable feeds removed */
+// Updated feeds with more reliable sources
 const FEEDS = [
   // ── Nigeria ────────────────────────────────────────────────
-  { url:"https://punchng.com/feed/",              source:"Punch",         category:"Nigeria" },
-  { url:"https://www.vanguardngr.com/feed/",      source:"Vanguard",      category:"Nigeria" },
-  { url:"https://www.premiumtimesng.com/feed/",   source:"Premium Times", category:"Nigeria" },
-  { url:"https://www.channelstv.com/feed/",       source:"Channels TV",   category:"Nigeria" },
-  { url:"https://www.thecable.ng/feed",           source:"The Cable",     category:"Nigeria" },
+  { url: "https://punchng.com/feed/",              source: "Punch",         category: "Nigeria" },
+  { url: "https://www.vanguardngr.com/feed/",      source: "Vanguard",      category: "Nigeria" },
+  { url: "https://www.premiumtimesng.com/feed/",   source: "Premium Times", category: "Nigeria" },
+  { url: "https://www.channelstv.com/feed/",       source: "Channels TV",   category: "Nigeria" },
+  { url: "https://www.thecable.ng/feed",           source: "The Cable",     category: "Nigeria" },
   // ── International ──────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/world/africa/rss.xml", source:"BBC Africa",  category:"International" },
-  { url:"https://feeds.bbci.co.uk/news/world/rss.xml",         source:"BBC World",   category:"International" },
-  { url:"https://www.aljazeera.com/xml/rss/all.xml",           source:"Al Jazeera",  category:"International" },
+  { url: "https://feeds.bbci.co.uk/news/world/africa/rss.xml", source: "BBC Africa",  category: "International" },
+  { url: "https://feeds.bbci.co.uk/news/world/rss.xml",         source: "BBC World",   category: "International" },
+  { url: "https://www.aljazeera.com/xml/rss/all.xml",           source: "Al Jazeera",  category: "International" },
   // ── Business ───────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/business/rss.xml",      source:"BBC Business",category:"Business" },
+  { url: "https://feeds.bbci.co.uk/news/business/rss.xml",      source: "BBC Business",category: "Business" },
   // ── Sports ─────────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/sport/rss.xml",              source:"BBC Sport",   category:"Sports" },
-  { url:"https://punchng.com/category/sports/feed/",           source:"Punch Sports",category:"Sports" },
+  { url: "https://feeds.bbci.co.uk/sport/rss.xml",              source: "BBC Sport",   category: "Sports" },
+  { url: "https://punchng.com/category/sports/feed/",           source: "Punch Sports",category: "Sports" },
   // ── Entertainment ──────────────────────────────────────────
-  { url:"https://punchng.com/category/entertainment/feed/",    source:"Punch Entertainment",category:"Entertainment" },
+  { url: "https://punchng.com/category/entertainment/feed/",    source: "Punch Entertainment",category: "Entertainment" },
+  { url: "https://www.vanguardngr.com/category/entertainment/feed/", source: "Vanguard Entertainment",category: "Entertainment" },
   // ── Technology ─────────────────────────────────────────────
-  { url:"https://feeds.bbci.co.uk/news/technology/rss.xml",    source:"BBC Technology",category:"Technology" },
-  { url:"https://techcabal.com/feed/",                         source:"TechCabal",   category:"Technology" },
+  { url: "https://feeds.bbci.co.uk/news/technology/rss.xml",    source: "BBC Technology",category: "Technology" },
+  { url: "https://techcabal.com/feed/",                         source: "TechCabal",   category: "Technology" },
   // ── Politics ───────────────────────────────────────────────
-  { url:"https://www.vanguardngr.com/category/politics/feed/", source:"Vanguard Politics",category:"Politics" },
+  { url: "https://www.vanguardngr.com/category/politics/feed/", source: "Vanguard Politics",category: "Politics" },
+  // ── Health ─────────────────────────────────────────────────
+  { url: "https://www.vanguardngr.com/category/health/feed/",   source: "Vanguard Health",category: "Health" },
+  { url: "https://punchng.com/category/health/feed/",           source: "Punch Health",category: "Health" },
 ];
 
+// Backup image if none found
+const FALLBACK_IMAGES = {
+  "Punch": "https://punchng.com/wp-content/uploads/2024/01/punch-logo.png",
+  "Vanguard": "https://www.vanguardngr.com/wp-content/uploads/2021/08/vanguard-logo.png",
+  "BBC Africa": "https://www.bbc.co.uk/news/special/2015/newsspec_10828/bbc_news_logo.png?cb=1",
+  "Al Jazeera": "https://www.aljazeera.com/favicon.ico",
+};
+
 function extractImage(item) {
-  const mc = item["media:content"];
-  if (mc) {
-    if (mc.$ && mc.$.url) return mc.$.url;
-    if (Array.isArray(mc) && mc[0]?.$.url) return mc[0].$.url;
+  // Try all possible image sources
+  const sources = [
+    () => item["media:content"]?.$?.url,
+    () => item["media:content"]?.[0]?.$?.url,
+    () => item["media:thumbnail"]?.$?.url,
+    () => item["media:thumbnail"]?.[0]?.$?.url,
+    () => item["media:group"]?.["media:content"]?.$?.url,
+    () => item["media:group"]?.["media:content"]?.[0]?.$?.url,
+    () => item.enclosure?.url,
+    () => {
+      const html = item["content:encoded"] || item.content || item.description || "";
+      const match = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif)(\?[^"']*)?)[^"']*["']/i);
+      return match?.[1];
+    },
+    () => item["media:thumbnail"]?.url,
+  ];
+  
+  for (const fn of sources) {
+    try {
+      const url = fn();
+      if (url && typeof url === "string" && url.startsWith("http")) return url;
+    } catch {}
   }
-  const mt = item["media:thumbnail"];
-  if (mt) {
-    if (mt.$ && mt.$.url) return mt.$.url;
-    if (Array.isArray(mt) && mt[0]?.$.url) return mt[0].$.url;
-  }
-  const mg = item["media:group"];
-  if (mg?.["media:content"]) {
-    const c = mg["media:content"];
-    if (c.$ && c.$.url) return c.$.url;
-    if (Array.isArray(c) && c[0]?.$.url) return c[0].$.url;
-  }
-  const enc = item.enclosure;
-  if (enc?.url && (!enc.type || enc.type.startsWith("image/"))) return enc.url;
-  const html = item["content:encoded"] || item.content || item.description || "";
-  const m = html.match(/<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp|gif)(\?[^"']*)?)[^"']*["']/i);
-  if (m) return m[1];
   return null;
 }
 
@@ -70,53 +85,98 @@ function stripHtml(s = "") {
 
 function timeAgo(str) {
   if (!str) return "Recently";
-  const d = new Date(str); if (isNaN(d)) return "Recently";
+  const d = new Date(str); 
+  if (isNaN(d)) return "Recently";
   const diff = Date.now() - d.getTime();
   const m = Math.floor(diff/60000);
-  if (m<1) return "Just now"; if (m<60) return `${m}m ago`;
+  if (m<1) return "Just now"; 
+  if (m<60) return `${m}m ago`;
   const h = Math.floor(m/60);
-  if (h<24) return `${h}h ago`; return `${Math.floor(h/24)}d ago`;
+  if (h<24) return `${h}h ago`; 
+  return `${Math.floor(h/24)}d ago`;
 }
 
-/* Per-feed timeout so one slow feed can't block the rest */
-async function parseFeed(feed) {
-  const result = await Promise.race([
-    parser.parseURL(feed.url),
-    new Promise((_,rej) => setTimeout(()=>rej(new Error("timeout")), 10000)),
-  ]);
-  return result.items.slice(0,10).map(item=>{
-    const rawDesc = item["content:encoded"]||item.content||item.contentSnippet||item.summary||"";
-    const excerpt = stripHtml(rawDesc).slice(0,240)||`Read more at ${feed.source}.`;
-    const pubDate = item.pubDate||item.isoDate||new Date().toISOString();
-    return {
-      id:        item.guid||item.link||Math.random().toString(36),
-      title:     stripHtml(item.title||""),
-      excerpt,
-      source:    feed.source,
-      sourceUrl: item.link||"",
-      category:  feed.category,
-      timeAgo:   timeAgo(pubDate),
-      pubDate,
-      image:     extractImage(item),
-      isBreaking:false,
-    };
-  }).filter(n=>n.title&&n.sourceUrl);
+// Parse a single feed with retry
+async function parseFeed(feed, retries = 2) {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const result = await Promise.race([
+        parser.parseURL(feed.url),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000)),
+      ]);
+      
+      const items = (result.items || []).slice(0, 12).map(item => {
+        const rawDesc = item["content:encoded"] || item.content || item.contentSnippet || item.summary || "";
+        const excerpt = stripHtml(rawDesc).slice(0, 260) || `Read more at ${feed.source}.`;
+        const pubDate = item.pubDate || item.isoDate || new Date().toISOString();
+        const imageUrl = extractImage(item);
+        
+        return {
+          id: item.guid || item.link || `${feed.source}-${Date.now()}-${Math.random()}`,
+          title: stripHtml(item.title || ""),
+          excerpt: excerpt || stripHtml(item.title || ""),
+          source: feed.source,
+          sourceUrl: item.link || "",
+          category: feed.category,
+          timeAgo: timeAgo(pubDate),
+          pubDate,
+          image: imageUrl || FALLBACK_IMAGES[feed.source] || null,
+          isBreaking: false,
+        };
+      }).filter(n => n.title && n.sourceUrl);
+      
+      return items;
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries) {
+        await new Promise(resolve => setTimeout(resolve, 2000 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError;
 }
 
 export default async function handler(req, res) {
-  res.setHeader("Cache-Control","s-maxage=1800, stale-while-revalidate=3600");
-  const results = await Promise.allSettled(FEEDS.map(parseFeed));
-  const feedLog = results.map((r,i)=>({
-    source:FEEDS[i].source, ok:r.status==="fulfilled",
-    count:r.status==="fulfilled"?r.value.length:0,
-    error:r.status==="rejected"?String(r.reason?.message):null,
+  res.setHeader("Cache-Control", "s-maxage=1200, stale-while-revalidate=1800");
+  
+  // Fetch all feeds in parallel with individual timeouts
+  const results = await Promise.allSettled(
+    FEEDS.map(feed => parseFeed(feed))
+  );
+  
+  const feedLog = results.map((r, i) => ({
+    source: FEEDS[i].source,
+    ok: r.status === "fulfilled",
+    count: r.status === "fulfilled" ? r.value.length : 0,
+    error: r.status === "rejected" ? String(r.reason?.message || "unknown error") : null,
   }));
-  let news = results.filter(r=>r.status==="fulfilled").flatMap(r=>r.value)
-    .sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate));
-  const cutoff = Date.now()-3*3600000; let bc=0;
-  news = news.map(n=>{
-    if(bc<5&&new Date(n.pubDate).getTime()>cutoff){bc++;return{...n,isBreaking:true};}
+  
+  // Merge all news items
+  let news = results
+    .filter(r => r.status === "fulfilled")
+    .flatMap(r => r.value)
+    .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  
+  // Remove duplicates by title (keep first occurrence)
+  const seen = new Set();
+  news = news.filter(n => {
+    const key = n.title.toLowerCase().trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  
+  // Mark breaking news (last 6 hours, up to 8 items)
+  const cutoff = Date.now() - 6 * 3600000;
+  let breakCount = 0;
+  news = news.map(n => {
+    if (breakCount < 8 && new Date(n.pubDate).getTime() > cutoff) {
+      breakCount++;
+      return { ...n, isBreaking: true };
+    }
     return n;
   });
-  res.status(200).json({news,feedLog});
+  
+  res.status(200).json({ news, feedLog });
 }
