@@ -697,21 +697,22 @@ useEffect(()=>{
                 <p style={{margin:"3px 0 0",fontSize:11,color:C.textMid}}>Adds red badge + includes in live ticker</p>
               </div>
             </label>
-          </SidebarPanel>
+             </label>
+    </SidebarPanel>
 
-          <div style={{flex:1,minHeight:32}}/>
-        </div>
-      </div>
+    <div style={{flex:1,minHeight:32}}/>
+    </div>
+    </div>
     </>
   );
-}  // <-- Add this closing brace for WriteArticle
+}  // <-- This closes the WriteArticle component
 
-/* ──────────────────────────────────────────────────────────
-   ANALYTICS TAB
-   ─────────────────────────────────────────────────────── */
+//<--Add this closing brace for WriteArticle
+
+/*
+ANALYTICS TAB
+*/
 function AnalyticsTab({ analytics, analyticsLoading }) {
-  const last7    = analytics?.last7Days  || [];
-  const cats     = analytics?.byCategory || {};
   const articles = analytics?.topArticles|| [];
   const maxBar   = Math.max(...last7.map(([,v])=>v), 1);
   const maxCat   = Math.max(...Object.values(cats), 1);
