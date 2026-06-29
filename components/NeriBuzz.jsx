@@ -12,6 +12,7 @@ const C = {
   textMid:"#64748B", textFaint:"#1E2D3D", border:"#1A2535", borderHi:"#263548",
   red:"#F87171", redSolid:"#EF4444", green:"#34D399", wa:"#25D366",
 };
+
 const SRC = {
   "Punch":"#E53935","Vanguard":"#1E88E5","Premium Times":"#1565C0",
   "Guardian Nigeria":"#43A047","Channels TV":"#FB8C00","The Cable":"#8E24AA",
@@ -20,6 +21,7 @@ const SRC = {
   "BBC Health":"#D32F2F","Al Jazeera":"#E64A19","TechCabal":"#00ACC1",
   "The Guardian":"#0066CC","Guardian NG":"#0066CC","NeriBuzz":"#22D3EE",
 };
+
 const WA_URL  = "https://whatsapp.com/channel/0029Vb6xYzRFMqrRNDnpwm1V";
 const serif   = '"Playfair Display", Georgia, serif';
 const DEF_CATS = ["Nigeria","International","Business","Sports","Entertainment","Technology","Health","Politics"];
@@ -207,7 +209,7 @@ function WhatsAppBanner() {
   const [v,setV]=useState(true);
   if(!v) return null;
   return (
-    <div style={{background:"rgba(37,211,102,.08)",borderBottom:"1px solid rgba(37,211,102,.2)",padding:"9px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+    <div className="nb-whatsapp-banner" style={{background:"rgba(37,211,102,.08)",borderBottom:"1px solid rgba(37,211,102,.2)",padding:"9px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}>
         <span style={{fontSize:17}}>💬</span>
         <span style={{fontSize:13,color:"#86EFAC",fontWeight:500}}>Get instant updates — join the <strong style={{color:"#4ADE80"}}>NeriBuzz WhatsApp Channel</strong></span>
@@ -243,7 +245,6 @@ function NotificationBell({ categories }) {
       const p = await Notification.requestPermission().catch(()=>"denied");
       setPerm(p);
       if(p==="granted") {
-        // Register SW
         if("serviceWorker" in navigator){
           await navigator.serviceWorker.register("/sw.js").catch(()=>{});
         }
@@ -314,19 +315,17 @@ function Header({ categories, activeCat, onCat, onHome, mobileOpen, onMobile }) 
         </div>
       </div>
 
-      {/* Category nav — horizontal scroll */}
-      <div style={{borderTop:`1px solid ${C.navBorder}`,overflowX:"auto",scrollbarWidth:"none"}}>
-        <div style={{maxWidth:1300,margin:"0 auto",padding:"0 16px",display:"flex"}}>
+      <div className="nb-header-categories" style={{borderTop:`1px solid ${C.navBorder}`,overflowX:"auto",scrollbarWidth:"none",WebkitOverflowScrolling:"touch"}}>
+        <div style={{maxWidth:1300,margin:"0 auto",padding:"0 8px",display:"flex",gap:2}}>
           {["All",...categories].map(cat=>(
-            <button key={cat} onClick={()=>onCat(cat)} className="nb-btn"
-              style={{padding:"9px 14px",background:"transparent",border:"none",borderBottom:activeCat===cat?`2px solid ${C.cyan}`:"2px solid transparent",color:activeCat===cat?C.cyan:C.textMid,fontSize:13,fontWeight:activeCat===cat?700:500,cursor:"pointer",whiteSpace:"nowrap"}}>
+            <button key={cat} onClick={()=>onCat(cat)} className="nb-btn nb-category-btn"
+              style={{padding:"8px 10px",background:"transparent",border:"none",borderBottom:activeCat===cat?`2px solid ${C.cyan}`:"2px solid transparent",color:activeCat===cat?C.cyan:C.textMid,fontSize:12,fontWeight:activeCat===cat?700:500,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
               {cat}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Mobile fullscreen overlay */}
       {mobileOpen&&(
         <div className="nb-overlay" style={{position:"fixed",inset:0,background:C.nav,zIndex:200,display:"flex",flexDirection:"column",padding:"20px 20px 32px",overflowY:"auto"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:28}}>
@@ -362,7 +361,7 @@ function SectionHead({ title, count, onRefresh, loading }) {
     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
       <div style={{display:"flex",alignItems:"center",gap:10}}>
         <span style={{width:3,height:24,background:C.cyan,borderRadius:2,display:"inline-block"}}/>
-        <h2 style={{margin:0,fontSize:19,fontWeight:800,color:C.white,fontFamily:serif}}>{title}</h2>
+        <h2 className="nb-section-title" style={{margin:0,fontSize:19,fontWeight:800,color:C.white,fontFamily:serif}}>{title}</h2>
         {count!=null&&<span style={{fontSize:11,color:C.textMid,background:"rgba(255,255,255,.04)",padding:"2px 9px",borderRadius:20,border:`1px solid ${C.border}`}}>{count}</span>}
       </div>
       {onRefresh&&(
@@ -378,7 +377,7 @@ function SectionHead({ title, count, onRefresh, loading }) {
 /* ── News grid ───────────────────────────────────────── */
 function NewsGrid({ items, loading }) {
   return (
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:18}}>
+    <div className="nb-card-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:18}}>
       {loading ? [1,2,3,4,5,6].map(i=><Skeleton key={i}/>) : items.map((it,i)=><NewsCard key={it.id||`b${i}`} item={it} blog={!!it.isBlog}/>)}
     </div>
   );
@@ -392,7 +391,7 @@ function HomeView({ news, blogPosts, categories, onCatSelect, onRefresh, loading
   const top   = [...rest,...blogs].slice(0,6);
 
   return (
-    <div style={{maxWidth:1300,margin:"0 auto",padding:"24px 16px 80px"}}>
+    <div style={{maxWidth:1300,margin:"0 auto",padding:"16px 12px 80px"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:10}}>
         <span style={{fontSize:12,color:C.textMid,display:"flex",alignItems:"center",gap:6}}>
           <Clock size={13}/>{loading?"Fetching live headlines…":`${news.length} stories · ${lastRefresh.toLocaleTimeString()}`}
@@ -439,7 +438,7 @@ function CategoryView({ cat, news, blogPosts, onBack, onRefresh, loading, lastRe
   const blogs=blogPosts.map(p=>({...p,isBlog:true}));
   const items=cat==="All"?[...news,...blogs]:[...news.filter(n=>n.category===cat),...blogs.filter(b=>b.category===cat)];
   return (
-    <div style={{maxWidth:1300,margin:"0 auto",padding:"24px 16px 80px"}}>
+    <div style={{maxWidth:1300,margin:"0 auto",padding:"16px 12px 80px"}}>
       <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:14}}>
         <div>
           <button onClick={onBack} style={{background:"transparent",border:"none",color:C.textMid,fontSize:13,cursor:"pointer",display:"flex",alignItems:"center",gap:4,marginBottom:8,padding:0}}>← Back</button>
@@ -463,7 +462,7 @@ function CategoryView({ cat, news, blogPosts, onBack, onRefresh, loading, lastRe
 /* ── Footer ──────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer style={{background:C.nav,borderTop:`1px solid ${C.navBorder}`,padding:"32px 16px 80px"}}>
+    <footer className="nb-footer" style={{background:C.nav,borderTop:`1px solid ${C.navBorder}`,padding:"32px 16px 80px"}}>
       <div style={{maxWidth:1300,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:24,marginBottom:24}}>
           <div>
@@ -498,7 +497,7 @@ function Footer() {
 /* ── Mobile bottom nav ───────────────────────────────── */
 function MobileBottomNav({ activeCat, onCat, onHome }) {
   return (
-    <nav style={{position:"fixed",bottom:0,left:0,right:0,background:C.nav,borderTop:`1px solid ${C.border}`,display:"flex",zIndex:90,paddingBottom:"env(safe-area-inset-bottom)"}}>
+    <nav className="nb-mobile-bottom-nav" style={{position:"fixed",bottom:0,left:0,right:0,background:C.nav,borderTop:`1px solid ${C.border}`,display:"flex",zIndex:90,paddingBottom:"env(safe-area-inset-bottom)"}}>
       {[
         { label:"Home",          Icon:Home,      action:onHome,         active:activeCat==="All" },
         { label:"Nigeria",       Icon:Newspaper, action:()=>onCat("Nigeria"),     active:activeCat==="Nigeria"       },
@@ -506,9 +505,9 @@ function MobileBottomNav({ activeCat, onCat, onHome }) {
         { label:"Entertainment", Icon:Newspaper, action:()=>onCat("Entertainment"),active:activeCat==="Entertainment" },
         { label:"WhatsApp",      Icon:null,      action:()=>window.open(WA_URL,"_blank"), active:false },
       ].map(({ label,Icon,action,active })=>(
-        <button key={label} onClick={action}
-          style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"10px 4px",background:"transparent",border:"none",cursor:"pointer",color:active?C.cyan:C.textMid,fontSize:10,gap:4,fontFamily:"inherit"}}>
-          {label==="WhatsApp" ? <span style={{fontSize:20}}>💬</span> : Icon && <Icon size={18}/>}
+        <button key={label} onClick={action} className="nb-mobile-nav-btn"
+          style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"8px 2px",background:"transparent",border:"none",cursor:"pointer",color:active?C.cyan:C.textMid,fontSize:9,gap:2,fontFamily:"inherit"}}>
+          {label==="WhatsApp" ? <span style={{fontSize:18}}>💬</span> : Icon && <Icon size={16}/>}
           <span>{label}</span>
         </button>
       ))}
@@ -547,16 +546,13 @@ export default function NeriBuzz() {
   useEffect(()=>lsSet("nb_posts",posts),[posts]);
   useEffect(()=>lsSet("nb_cats",cats),[cats]);
 
-  /* Register service worker */
   useEffect(()=>{
     if("serviceWorker" in navigator){
       navigator.serviceWorker.register("/sw.js").catch(()=>{});
     }
-    // Track page view
     fetch("/api/analytics",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"pageview"})}).catch(()=>{});
   },[]);
 
-  /* Sync hidden list + posts from admin (cross-tab) */
   useEffect(()=>{
     const sync=()=>{
       setHidden(lsGet("nb_hidden",[]));
@@ -575,7 +571,6 @@ export default function NeriBuzz() {
       const{news:n,feedLog:l}=await r.json();
       setErrCnt((l||[]).filter(f=>!f.ok).length);
 
-      // In-browser notification for new stories in subscribed categories
       const notifCats = lsGet("nb_notif_cats",[]);
       if(notifCats.length&&Notification.permission==="granted"&&prevIds.current.size>0){
         const newOnes=(n||[]).filter(s=>!prevIds.current.has(s.id)&&notifCats.includes(s.category));
@@ -597,7 +592,6 @@ export default function NeriBuzz() {
   useEffect(()=>{loadNews();},[loadNews]);
   useEffect(()=>{const t=setInterval(loadNews,3600000);return()=>clearInterval(t);},[loadNews]);
 
-  /* Filter hidden stories */
   const visibleNews = news.filter(n=>!hidden.includes(n.id));
 
   const navTo   = cat=>{setActive(cat);setPage(cat==="All"?"home":"category");setMobile(false);};

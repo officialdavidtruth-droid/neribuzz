@@ -17,6 +17,16 @@ const C = {
   white:"#F1F5F9", text:"#CBD5E1", textMid:"#64748B", textFaint:"#1E2D3D",
   border:"#1A2535", red:"#F87171", redSolid:"#EF4444", green:"#34D399",
 };
+
+const SRC_COLORS = {
+  "Punch":"#E53935","Vanguard":"#1E88E5","Premium Times":"#1565C0",
+  "Guardian Nigeria":"#43A047","Channels TV":"#FB8C00","The Cable":"#8E24AA",
+  "BBC Africa":"#D32F2F","BBC World":"#D32F2F","BBC Business":"#D32F2F",
+  "BBC Sport":"#C62828","BBC Entertainment":"#D32F2F","BBC Technology":"#D32F2F",
+  "BBC Health":"#D32F2F","Al Jazeera":"#E64A19","TechCabal":"#00ACC1",
+  "The Guardian":"#0066CC","Guardian NG":"#0066CC","NeriBuzz":"#22D3EE",
+};
+
 const serif = '"Playfair Display", Georgia, serif';
 const DEF_CATS = ["Nigeria","International","Business","Sports","Entertainment","Technology","Health","Politics"];
 const lsGet = (k,fb)=>{ try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;} };
@@ -59,6 +69,29 @@ const STYLES = `
 .nb-dz{border:2px dashed #1A2535;border-radius:10px;padding:22px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
 .nb-dz:hover,.nb-dz-over{border-color:#22D3EE!important;background:rgba(34,211,238,.06)!important}
 input[type=checkbox]{accent-color:#22D3EE;width:15px;height:15px;cursor:pointer}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .nb-admin-topbar { flex-wrap: wrap !important; gap: 8px !important; height: auto !important; padding: 8px 12px !important; }
+  .nb-admin-topbar-left { flex-wrap: wrap !important; gap: 8px !important; padding: 4px 0 !important; }
+  .nb-admin-topbar-right { flex-wrap: wrap !important; gap: 6px !important; padding: 4px 0 8px !important; }
+  .nb-admin-tabs { display: flex !important; overflow-x: auto !important; padding: 4px 8px !important; gap: 4px !important; scrollbar-width: none !important; }
+  .nb-admin-tabs::-webkit-scrollbar { display: none !important; }
+  .nb-admin-tab-btn { font-size: 11px !important; padding: 6px 10px !important; white-space: nowrap !important; }
+  .nb-write-article { flex-direction: column !important; margin: -16px !important; }
+  .nb-write-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #1A2535 !important; max-height: 50vh !important; }
+  .nb-write-editor { padding: 0 8px 40px !important; }
+  .nb-write-title { font-size: 24px !important; }
+  .nb-write-content { min-height: 300px !important; padding: 16px !important; }
+  .nb-write-toolbar { gap: 2px !important; padding: 6px 8px !important; }
+  .nb-write-toolbar-hint { display: none !important; }
+  .nb-write-permalink { flex-wrap: wrap !important; }
+}
+@media (max-width: 480px) {
+  .nb-admin-topbar-left .nb-brand { font-size: 16px !important; }
+  .nb-admin-topbar-right .nb-btn { font-size: 11px !important; padding: 5px 10px !important; }
+  .nb-write-title { font-size: 20px !important; }
+}
 `;
 
 /* ──────────────────────────────────────────────────────────
@@ -112,7 +145,6 @@ function DropZone({ onImage, compact = false, label = "Drag & drop image here" }
     try {
       const origSize = file.size;
       const b64 = await compressImage(file);
-      // b64 is "data:image/jpeg;base64,..." — calc compressed size
       const compSize = Math.round((b64.length * 3) / 4);
       setInfo(`Compressed: ${fmtBytes(origSize)} → ${fmtBytes(compSize)}`);
       onImage(b64);
@@ -168,7 +200,7 @@ function DropZone({ onImage, compact = false, label = "Drag & drop image here" }
    INSERT IMAGE MODAL  (for inline content images)
    ─────────────────────────────────────────────────────── */
 function InsertImageModal({ editorRef, onClose }) {
-  const [mode,    setMode]   = useState("upload"); // "upload" | "url"
+  const [mode,    setMode]   = useState("upload");
   const [url,     setUrl]    = useState("");
   const [preview, setPreview]= useState(null);
   const [imgErr,  setImgErr] = useState(false);
@@ -180,7 +212,6 @@ function InsertImageModal({ editorRef, onClose }) {
     const src = url || preview;
     if (!src) return;
     editorRef.current?.focus();
-    // Build img tag with optional alt
     const alt = altText || "image";
     document.execCommand("insertHTML", false, `<img src="${src}" alt="${alt}" />`);
     onClose();
@@ -191,14 +222,10 @@ function InsertImageModal({ editorRef, onClose }) {
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(4,5,7,.88)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:20 }}>
       <div style={{ background:"#0D1117", border:`1px solid ${C.border}`, borderRadius:14, width:"100%", maxWidth:500, boxShadow:"0 28px 70px rgba(0,0,0,.6)", overflow:"hidden" }}>
-
-        {/* Header */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 22px", borderBottom:`1px solid ${C.border}` }}>
           <h3 style={{ margin:0, fontSize:16, fontWeight:800, color:C.white, fontFamily:serif }}>Insert Image</h3>
           <button onClick={onClose} className="nb-btn" style={{ background:"transparent", border:"none", color:C.textMid, cursor:"pointer", padding:4, display:"flex" }}><X size={18}/></button>
         </div>
-
-        {/* Tabs */}
         <div style={{ display:"flex", borderBottom:`1px solid ${C.border}` }}>
           {[["upload","Upload File"],["url","Paste URL"]].map(([id,label])=>(
             <button key={id} onClick={()=>setMode(id)} className="nb-btn"
@@ -207,7 +234,6 @@ function InsertImageModal({ editorRef, onClose }) {
             </button>
           ))}
         </div>
-
         <div style={{ padding:"20px 22px" }}>
           {mode==="upload" ? (
             <DropZone onImage={handleUpload} label="Drag & drop or click to upload"/>
@@ -219,8 +245,6 @@ function InsertImageModal({ editorRef, onClose }) {
                 style={inp}/>
             </div>
           )}
-
-          {/* Preview */}
           {(url||preview)&&!imgErr&&(
             <div style={{ marginTop:14, borderRadius:9, overflow:"hidden", maxHeight:220, background:"#040608", position:"relative" }}>
               <img src={url||preview} alt="preview" referrerPolicy="no-referrer"
@@ -231,8 +255,6 @@ function InsertImageModal({ editorRef, onClose }) {
             </div>
           )}
           {imgErr&&<p style={{margin:"8px 0 0",fontSize:12,color:C.red}}>⚠ Image failed to load — check the URL</p>}
-
-          {/* Alt text */}
           {(url||preview)&&!imgErr&&(
             <div style={{ marginTop:14 }}>
               <label style={{ fontSize:11, fontWeight:700, color:C.textMid, display:"block", marginBottom:7, letterSpacing:.8, textTransform:"uppercase" }}>Alt Text (optional)</label>
@@ -240,8 +262,6 @@ function InsertImageModal({ editorRef, onClose }) {
                 onChange={e=>setAlt(e.target.value)} style={{...inp,fontSize:13}}/>
             </div>
           )}
-
-          {/* Actions */}
           <div style={{ display:"flex", gap:10, marginTop:18 }}>
             <button onClick={onClose} className="nb-btn"
               style={{ flex:1, padding:"10px", border:`1px solid ${C.border}`, borderRadius:8, background:"transparent", color:C.textMid, fontSize:13, cursor:"pointer" }}>
@@ -289,7 +309,6 @@ function FeaturedImagePanel({ coverImg, setCoverImg }) {
   return (
     <SidebarPanel title="Featured Image" defaultOpen={true}>
       {coverImg ? (
-        /* ── Image set — show preview ── */
         <div>
           <div style={{ borderRadius:8, overflow:"hidden", marginBottom:10, position:"relative", background:"#040608" }}>
             {!imgErr ? (
@@ -321,13 +340,11 @@ function FeaturedImagePanel({ coverImg, setCoverImg }) {
               <button onClick={applyUrl} className="nb-btn" style={{ padding:"8px 12px", background:C.cyanGlow, border:`1px solid ${C.cyanBorder}`, borderRadius:7, color:C.cyan, fontSize:12, cursor:"pointer" }}>OK</button>
             </div>
           )}
-          {/* Replace by dragging new image */}
           <div style={{ marginTop:10 }}>
             <DropZone onImage={src=>{ setCoverImg(src); setImgErr(false); }} compact={true}/>
           </div>
         </div>
       ) : (
-        /* ── No image — show upload + URL ── */
         <div>
           <DropZone onImage={setCoverImg} label="Drag & drop cover image"/>
           <div style={{ display:"flex", alignItems:"center", gap:8, margin:"14px 0" }}>
@@ -372,10 +389,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
   const [saved,      setSaved]    = useState(false);
   const editorRef = useRef(null);
 
-  /* Slug from title */
   const slug = title.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-").slice(0,60)||"your-article-title";
 
-  /* Init editor content */
   useEffect(()=>{
     if(editorRef.current){
       editorRef.current.innerHTML = editing?.content||"";
@@ -383,7 +398,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   },[editing]);
 
-  /* Auto-excerpt */
   const refreshExcerpt = useCallback(()=>{
     if(!customEx&&editorRef.current){
       const text=(editorRef.current.innerText||"").trim();
@@ -391,14 +405,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   },[customEx]);
 
-  /* Track active formats */
   const checkFmts = ()=>{
     const f={};
     ["bold","italic","underline","strikeThrough"].forEach(k=>{ try{f[k]=document.queryCommandState(k);}catch{f[k]=false;} });
     setFmts(f);
   };
 
-  /* execCommand shortcut */
   const exec = (cmd,val=null)=>{
     editorRef.current?.focus();
     document.execCommand(cmd,false,val);
@@ -406,13 +418,11 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     refreshExcerpt();
   };
 
-  /* Insert link */
   const insertLink = ()=>{
     const url=prompt("Enter URL (include https://):");
     if(url){ exec("createLink",url); }
   };
 
-  /* Keyboard shortcuts */
   const handleKeyDown = e=>{
     if(e.ctrlKey||e.metaKey){
       if(e.key==="b"){e.preventDefault();exec("bold");}
@@ -422,7 +432,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Clipboard paste — handles image paste from clipboard / screenshots */
   const handlePaste = async e=>{
     const items = Array.from(e.clipboardData?.items||[]);
     const imgItem = items.find(i=>i.type.startsWith("image/"));
@@ -439,14 +448,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Drop image onto editor area */
   const handleEditorDrop = async e=>{
     const file = e.dataTransfer.files[0];
     if(file?.type.startsWith("image/")){
       e.preventDefault();
       try{
         const b64 = await compressImage(file);
-        // Try to position at drop point
         const range = document.caretRangeFromPoint?.(e.clientX,e.clientY);
         if(range){const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
         document.execCommand("insertHTML",false,`<img src="${b64}" alt="dropped image"/>`);
@@ -455,14 +462,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     }
   };
 
-  /* Tags */
   const addTag = ()=>{
     const t=tagInput.trim().toLowerCase();
     if(t&&!tags.includes(t)) setTags(v=>[...v,t]);
     setTagInput("");
   };
 
-  /* Save */
   const handleSave = (draft=false)=>{
     if(!title.trim()){setMsg({text:"Headline is required.",ok:false});return;}
     const content=editorRef.current?.innerHTML||"";
@@ -484,7 +489,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     setTimeout(()=>onSave(post,!!editing),700);
   };
 
-  /* Toolbar button component */
   const TB = ({cmd,val,label,Icon,title:tt,active,onClick,wide})=>(
     <button title={tt} onClick={onClick||(e=>{e.preventDefault();exec(cmd,val);})}
       className={`nb-tool${active?" nb-tool-active":""}`}
@@ -500,13 +504,11 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
     <>
       {showImgModal && <InsertImageModal editorRef={editorRef} onClose={()=>setImgModal(false)}/>}
 
-      <div style={{ display:"flex", height:"calc(100vh - 58px)", margin:"-28px", overflow:"hidden" }}>
+      <div className="nb-write-article" style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 58px)", margin:"-28px", overflow:"hidden" }}>
 
-        {/* ── MAIN EDITOR COLUMN ──────────────────────────── */}
         <div style={{ flex:1, overflowY:"auto", background:C.editorBg, minWidth:0, display:"flex", flexDirection:"column" }}>
 
-          {/* Sticky top bar */}
-          <div style={{ position:"sticky", top:0, zIndex:10, background:C.editorBg, borderBottom:`1px solid ${C.border}`, padding:"9px 24px", display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
+          <div style={{ position:"sticky", top:0, zIndex:10, background:C.editorBg, borderBottom:`1px solid ${C.border}`, padding:"9px 24px", display:"flex", alignItems:"center", gap:12, flexShrink:0, flexWrap:"wrap" }}>
             <button onClick={onCancel} className="nb-btn"
               style={{ display:"flex",alignItems:"center",gap:6,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,padding:"6px 12px",borderRadius:7,fontSize:12,cursor:"pointer" }}>
               <ArrowLeft size={13}/> Dashboard
@@ -528,25 +530,24 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </button>
           </div>
 
-          {/* Title + permalink */}
           <div style={{ padding:"28px 36px 0" }}>
             <input type="text" value={title} onChange={e=>setTitle(e.target.value)}
               placeholder="Add title"
-              style={{ width:"100%",background:"transparent",border:"none",borderBottom:`2px solid ${title?C.border:C.textFaint}`,outline:"none",fontSize:32,fontWeight:900,fontFamily:serif,color:C.white,padding:"0 0 12px",marginBottom:12,transition:"border-color .2s",fontFamily:serif }}
+              className="nb-write-title"
+              style={{ width:"100%",background:"transparent",border:"none",borderBottom:`2px solid ${title?C.border:C.textFaint}`,outline:"none",fontSize:32,fontWeight:900,fontFamily:serif,color:C.white,padding:"0 0 12px",marginBottom:12,transition:"border-color .2s" }}
               onFocus={e=>e.target.style.borderColor=C.cyan}
               onBlur={e=>e.target.style.borderColor=title?C.border:C.textFaint}/>
-            <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:24,fontSize:12,color:C.textMid }}>
+            <div className="nb-write-permalink" style={{ display:"flex",alignItems:"center",gap:8,marginBottom:24,fontSize:12,color:C.textMid,flexWrap:"wrap" }}>
               <span style={{fontWeight:600}}>Permalink:</span>
-              <span style={{ color:C.cyan,background:C.cyanGlow,border:`1px solid ${C.cyanBorder}`,padding:"2px 10px",borderRadius:4,fontFamily:"monospace",fontSize:11 }}>
+              <span style={{ color:C.cyan,background:C.cyanGlow,border:`1px solid ${C.cyanBorder}`,padding:"2px 10px",borderRadius:4,fontFamily:"monospace",fontSize:11,overflow:"hidden",textOverflow:"ellipsis",maxWidth:"100%" }}>
                 /blog/<span style={{color:C.white}}>{slug}</span>
               </span>
               {editing&&<a href={`/blog/${editing.id}`} target="_blank" rel="noopener noreferrer" style={{color:C.textMid,display:"flex",alignItems:"center",gap:3,textDecoration:"none",fontSize:11}}><ExternalLink size={11}/> View</a>}
             </div>
           </div>
 
-          {/* Toolbar */}
           <div style={{ padding:"0 36px 0" }}>
-            <div style={{ display:"flex",alignItems:"center",flexWrap:"wrap",gap:3,padding:"8px 12px",background:C.nav,border:`1px solid ${C.border}`,borderRadius:"8px 8px 0 0" }}>
+            <div className="nb-write-toolbar" style={{ display:"flex",alignItems:"center",flexWrap:"wrap",gap:3,padding:"8px 12px",background:C.nav,border:`1px solid ${C.border}`,borderRadius:"8px 8px 0 0" }}>
               <TB cmd="formatBlock" val="p"  label="¶"  tt="Paragraph"/>
               <TB cmd="formatBlock" val="h2" label="H2" tt="Heading 2" wide/>
               <TB cmd="formatBlock" val="h3" label="H3" tt="Heading 3" wide/>
@@ -567,8 +568,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               <TB cmd="removeFormat" Icon={Scissors} tt="Clear Formatting"/>
             </div>
 
-            {/* Image upload hint bar */}
-            <div style={{ background:"rgba(34,211,238,.04)", border:`1px solid ${C.border}`, borderTop:"none", padding:"7px 14px", display:"flex", alignItems:"center", gap:8 }}>
+            <div className="nb-write-toolbar-hint" style={{ background:"rgba(34,211,238,.04)", border:`1px solid ${C.border}`, borderTop:"none", padding:"7px 14px", display:"flex", alignItems:"center", gap:8 }}>
               <ImageIcon size={13} style={{color:C.cyanDim,flexShrink:0}}/>
               <span style={{fontSize:11,color:C.textMid}}>
                 You can also <strong style={{color:C.text}}>drag & drop</strong> images directly into the editor, or <strong style={{color:C.text}}>paste</strong> screenshots with Ctrl+V
@@ -576,12 +576,11 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </div>
           </div>
 
-          {/* Content editable */}
-          <div style={{ flex:1, padding:"0 36px 40px" }}>
+          <div className="nb-write-editor" style={{ flex:1, padding:"0 36px 40px" }}>
             <div
               ref={editorRef}
               contentEditable suppressContentEditableWarning
-              className="nb-editor"
+              className="nb-editor nb-write-content"
               data-placeholder={"Start writing your article here…\n\nTip: drag & drop or paste images directly. Use the toolbar for formatting. Ctrl+B bold · Ctrl+I italic · Ctrl+K link."}
               onInput={()=>{ checkFmts(); refreshExcerpt(); }}
               onKeyDown={handleKeyDown}
@@ -596,10 +595,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
         </div>
 
-        {/* ── RIGHT SIDEBAR ────────────────────────────────── */}
-        <div style={{ width:272, flexShrink:0, background:C.sidebarBg, borderLeft:`1px solid ${C.border}`, overflowY:"auto", display:"flex", flexDirection:"column" }}>
+        <div className="nb-write-sidebar" style={{ width:272, flexShrink:0, background:C.sidebarBg, borderLeft:`1px solid ${C.border}`, overflowY:"auto", display:"flex", flexDirection:"column" }}>
 
-          {/* PUBLISH */}
           <SidebarPanel title="Publish" defaultOpen={true}>
             <div style={{ display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,fontSize:13 }}>
               <span style={{color:C.textMid}}>Status</span>
@@ -625,10 +622,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </button>
           </SidebarPanel>
 
-          {/* FEATURED IMAGE */}
           <FeaturedImagePanel coverImg={coverImg} setCoverImg={setCoverImg}/>
 
-          {/* CATEGORIES */}
           <SidebarPanel title="Categories" defaultOpen={true}>
             <div style={{ maxHeight:180,overflowY:"auto",display:"flex",flexDirection:"column",gap:7 }}>
               {categories.map(cat=>(
@@ -641,7 +636,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             </div>
           </SidebarPanel>
 
-          {/* TAGS */}
           <SidebarPanel title="Tags" defaultOpen={false}>
             {tags.length>0&&(
               <div style={{ display:"flex",flexWrap:"wrap",gap:5,marginBottom:10 }}>
@@ -666,7 +660,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             <p style={{margin:"7px 0 0",fontSize:10,color:C.textMid}}>Separate with comma or Enter</p>
           </SidebarPanel>
 
-          {/* EXCERPT */}
           <SidebarPanel title="Excerpt" defaultOpen={false}>
             <p style={{margin:"0 0 8px",fontSize:11,color:C.textMid,lineHeight:1.5}}>
               {customEx?"Custom excerpt:":"Auto-generated from first paragraph:"}
@@ -683,7 +676,6 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             )}
           </SidebarPanel>
 
-          {/* ATTRIBUTES */}
           <SidebarPanel title="Post Attributes" defaultOpen={true}>
             <label style={{ display:"flex",alignItems:"flex-start",gap:10,cursor:"pointer" }}>
               <input type="checkbox" checked={isBreaking} onChange={e=>setBrk(e.target.checked)} style={{marginTop:2}}/>
@@ -725,7 +717,6 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
         </div>
       ) : null}
 
-      {/* Summary cards */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(155px,1fr))", gap:12, marginBottom:20 }}>
         {[
           { label:"Today",        val: analytics?.todayViews?.toLocaleString() || "0", icon:"👁", col:"#38BDF8" },
@@ -741,7 +732,6 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
         ))}
       </div>
 
-      {/* 7-day bar chart */}
       <div style={p}>
         <h3 style={{ margin:"0 0 16px", fontSize:14, fontWeight:700, color:C.white }}>Last 7 Days</h3>
         {last7.length === 0 ? (
@@ -759,7 +749,6 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
         )}
       </div>
 
-      {/* Views by category */}
       {Object.keys(cats).length > 0 && (
         <div style={p}>
           <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.white }}>Views by Category</h3>
@@ -777,7 +766,6 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
         </div>
       )}
 
-      {/* Top articles */}
       {articles.length > 0 && (
         <div style={p}>
           <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.white }}>Top Articles</h3>
@@ -793,7 +781,6 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
         </div>
       )}
 
-      {/* Vercel Analytics note */}
       <div style={{ background:"rgba(34,211,238,.04)", border:`1px solid ${C.cyanBorder}`, borderRadius:12, padding:18 }}>
         <p style={{ margin:0, fontSize:13, color:C.textMid, lineHeight:1.6 }}>
           📈 <strong style={{ color:C.text }}>View counts reset on server restart.</strong> For persistent, real-time analytics,{" "}
@@ -808,7 +795,7 @@ function AnalyticsTab({ analytics, analyticsLoading }) {
 }
 
 /* ──────────────────────────────────────────────────────────
-   NEWS MANAGEMENT TAB  — see, search, and hide RSS stories
+   NEWS MANAGEMENT TAB
    ─────────────────────────────────────────────────────── */
 function NewsManageTab({ news, hidden, onToggle }) {
   const [search,   setSearch]  = useState("");
@@ -839,7 +826,6 @@ function NewsManageTab({ news, hidden, onToggle }) {
         </button>
       </div>
 
-      {/* Search */}
       <div style={{ position:"relative", marginBottom:14 }}>
         <input type="text" value={search} onChange={e=>setSearch(e.target.value)}
           placeholder="Search by title or source…"
@@ -847,7 +833,6 @@ function NewsManageTab({ news, hidden, onToggle }) {
         {search&&<button onClick={()=>setSearch("")} style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"transparent", border:"none", color:C.textMid, cursor:"pointer", padding:0, display:"flex" }}><X size={16}/></button>}
       </div>
 
-      {/* Category tabs */}
       <div style={{ display:"flex", gap:6, overflowX:"auto", marginBottom:18, scrollbarWidth:"none", paddingBottom:2 }}>
         {cats.map(cat=>(
           <button key={cat} onClick={()=>setFilter(cat)} className="nb-btn"
@@ -1177,12 +1162,11 @@ export default function AdminPanel() {
     <>
       <style>{STYLES}</style>
       <div style={{minHeight:"100vh",background:C.page,display:"flex",flexDirection:"column"}}>
-        {/* Topbar */}
-        <div style={{background:C.nav,borderBottom:`1px solid ${C.navBorder}`,padding:"0 24px",display:"flex",alignItems:"center",justifyContent:"space-between",height:58,flexShrink:0,zIndex:20,position:"relative"}}>
-          <div style={{display:"flex",alignItems:"center",gap:14}}>
-            <div style={{fontSize:19,fontFamily:serif,fontWeight:900}}><span style={{color:C.white}}>Neri</span><span style={{color:C.cyan}}>Buzz</span></div>
+        <div className="nb-admin-topbar" style={{background:C.nav,borderBottom:`1px solid ${C.navBorder}`,padding:"0 24px",display:"flex",alignItems:"center",justifyContent:"space-between",height:58,flexShrink:0,zIndex:20,position:"relative"}}>
+          <div className="nb-admin-topbar-left" style={{display:"flex",alignItems:"center",gap:14}}>
+            <div className="nb-brand" style={{fontSize:19,fontFamily:serif,fontWeight:900}}><span style={{color:C.white}}>Neri</span><span style={{color:C.cyan}}>Buzz</span></div>
             <span style={{background:C.cyanGlow,border:`1px solid ${C.cyanBorder}`,color:C.cyan,fontSize:10,padding:"3px 10px",borderRadius:4,fontWeight:700,letterSpacing:1}}>ADMIN</span>
-            {!showWrite&&TABS.map(t=>(
+            {!showWrite && window.innerWidth > 768 && TABS.map(t=>(
               <button key={t.id} className="nb-btn"
                 onClick={()=>{ if(t.id==="write"){setWriting("new");setTab("write");}else{setWriting(null);setTab(t.id);} }}
                 style={{display:"flex",alignItems:"center",gap:7,padding:"7px 14px",background:"transparent",border:"none",
@@ -1193,7 +1177,7 @@ export default function AdminPanel() {
               </button>
             ))}
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
+          <div className="nb-admin-topbar-right" style={{display:"flex",alignItems:"center",gap:10}}>
             <Link href="/" className="nb-btn" style={{display:"flex",alignItems:"center",gap:6,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,padding:"7px 14px",borderRadius:8,fontSize:12,textDecoration:"none"}}>← Live Site</Link>
             <button onClick={loadNews} disabled={loading} className="nb-btn"
               style={{display:"flex",alignItems:"center",gap:6,background:C.cyanGlow,border:`1px solid ${C.cyanBorder}`,color:C.cyan,padding:"7px 14px",borderRadius:8,fontSize:12,cursor:loading?"not-allowed":"pointer",opacity:loading?.7:1}}>
@@ -1205,7 +1189,19 @@ export default function AdminPanel() {
             </button>
           </div>
         </div>
-        {/* Body */}
+
+        {!showWrite && window.innerWidth <= 768 && (
+          <div className="nb-admin-tabs" style={{display:"flex",overflowX:"auto",background:C.nav,borderBottom:`1px solid ${C.navBorder}`,padding:"4px 8px",gap:4,scrollbarWidth:"none"}}>
+            {TABS.map(t=>(
+              <button key={t.id} className="nb-admin-tab-btn"
+                onClick={()=>{ if(t.id==="write"){setWriting("new");setTab("write");}else{setWriting(null);setTab(t.id);} }}
+                style={{display:"flex",alignItems:"center",gap:4,padding:"6px 12px",background:tab===t.id&&!showWrite?C.cyanGlow:"transparent",border:tab===t.id&&!showWrite?`1px solid ${C.cyanBorder}`:"1px solid transparent",borderRadius:6,color:tab===t.id&&!showWrite?C.cyan:C.textMid,fontSize:12,fontWeight:tab===t.id?600:400,cursor:"pointer",whiteSpace:"nowrap"}}>
+                <t.Icon size={12}/> {t.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div style={{flex:1,overflow:"hidden",display:"flex"}}>
           {showWrite ? (
             <WriteArticle editing={writing!=="new"?writing:null} categories={cats} onSave={savePost} onCancel={()=>{setWriting(null);setTab("posts");}}/>
