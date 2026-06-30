@@ -81,7 +81,7 @@ input[type=checkbox]{accent-color:#22D3EE;width:15px;height:15px;cursor:pointer}
   .nb-admin-tabs { display: flex !important; overflow-x: auto !important; padding: 4px 8px !important; gap: 4px !important; scrollbar-width: none !important; }
   .nb-admin-tabs::-webkit-scrollbar { display: none !important; }
   .nb-admin-tab-btn { font-size: 11px !important; padding: 6px 10px !important; white-space: nowrap !important; }
-  .nb-write-article { flex-direction: column !important; margin: -16px !important; height: calc(100vh - 50px) !important; }
+  .nb-write-article { flex-direction: column !important; margin: 0 !important; height: calc(100vh - 50px) !important; }
   .nb-write-editor { padding: 0 8px 40px !important; }
   .nb-write-title { font-size: 24px !important; }
   .nb-write-content { min-height: 300px !important; padding: 16px !important; }
@@ -519,10 +519,10 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
       <div className="nb-write-article" style={{ 
         display: "flex", 
         flexDirection: "row",
-        height: "calc(100vh - 58px)", 
-        margin: "-28px", 
+        height: "100%", 
+        width: "100%",
         overflow: "hidden",
-        width: "100%"
+        position: "relative"
       }}>
 
         {/* ── MAIN EDITOR COLUMN ──────────────────────────── */}
@@ -543,12 +543,13 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             zIndex: 10, 
             background: C.editorBg, 
             borderBottom: `1px solid ${C.border}`, 
-            padding: "9px 24px", 
+            padding: "12px 24px", 
             display: "flex", 
             alignItems: "center", 
             gap: "12px", 
             flexShrink: 0,
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            minHeight: "56px"
           }}>
             <button onClick={onCancel} className="nb-btn"
               style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, padding: "6px 12px", borderRadius: 7, fontSize: 12, cursor: "pointer" }}>
@@ -573,14 +574,14 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
 
           {/* Title + permalink */}
-          <div style={{ padding: "28px 36px 0" }}>
+          <div style={{ padding: "20px 36px 0" }}>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}
               placeholder="Add title"
               className="nb-write-title"
               style={{ width: "100%", background: "transparent", border: "none", borderBottom: `2px solid ${title ? C.border : C.textFaint}`, outline: "none", fontSize: "32px", fontWeight: 900, fontFamily: serif, color: C.white, padding: "0 0 12px", marginBottom: 12, transition: "border-color .2s" }}
               onFocus={e => e.target.style.borderColor = C.cyan}
               onBlur={e => e.target.style.borderColor = title ? C.border : C.textFaint} />
-            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 24, fontSize: 12, color: C.textMid, flexWrap: "wrap" }}>
+            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, fontSize: 12, color: C.textMid, flexWrap: "wrap" }}>
               <span style={{ fontWeight: 600 }}>Permalink:</span>
               <span style={{ color: C.cyan, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, padding: "2px 10px", borderRadius: 4, fontFamily: "monospace", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
                 /blog/<span style={{ color: C.white }}>{slug}</span>
@@ -621,7 +622,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
 
           {/* Content editable */}
-          <div className="nb-write-editor" style={{ flex: 1, padding: "0 36px 40px", overflowY: "auto" }}>
+          <div className="nb-write-editor" style={{ flex: 1, padding: "0 36px 20px", overflowY: "auto", minHeight: 0 }}>
             <div
               ref={editorRef}
               contentEditable suppressContentEditableWarning
@@ -632,7 +633,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               onMouseUp={checkFmts} onKeyUp={checkFmts}
               onPaste={handlePaste}
               onDrop={handleEditorDrop}
-              style={{ padding: "24px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", minHeight: "480px" }}
+              style={{ padding: "24px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", minHeight: "400px" }}
             />
             <p style={{ margin: "8px 0 0", fontSize: 11, color: C.textFaint }}>
               Ctrl+B bold · Ctrl+I italic · Ctrl+U underline · Ctrl+K link · Ctrl+V paste image
