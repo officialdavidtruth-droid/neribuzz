@@ -81,7 +81,7 @@ input[type=checkbox]{accent-color:#22D3EE;width:15px;height:15px;cursor:pointer}
   .nb-admin-tabs { display: flex !important; overflow-x: auto !important; padding: 4px 8px !important; gap: 4px !important; scrollbar-width: none !important; }
   .nb-admin-tabs::-webkit-scrollbar { display: none !important; }
   .nb-admin-tab-btn { font-size: 11px !important; padding: 6px 10px !important; white-space: nowrap !important; }
-  .nb-write-article { flex-direction: column !important; margin: 0 !important; height: calc(100vh - 50px) !important; }
+  .nb-write-article { flex-direction: column !important; margin: -16px !important; height: calc(100vh - 50px) !important; }
   .nb-write-editor { padding: 0 8px 40px !important; }
   .nb-write-title { font-size: 24px !important; }
   .nb-write-content { min-height: 300px !important; padding: 16px !important; }
@@ -519,10 +519,12 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
       <div className="nb-write-article" style={{ 
         display: "flex", 
         flexDirection: "row",
-        height: "100%", 
+        height: "calc(100vh - 58px)",
         width: "100%",
         overflow: "hidden",
-        position: "relative"
+        position: "relative",
+        margin: 0,
+        padding: 0
       }}>
 
         {/* ── MAIN EDITOR COLUMN ──────────────────────────── */}
@@ -533,7 +535,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           minWidth: 0, 
           display: "flex", 
           flexDirection: "column",
-          height: "100%"
+          height: "100%",
+          paddingTop: 0
         }}>
 
           {/* Sticky top bar */}
@@ -543,45 +546,66 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             zIndex: 10, 
             background: C.editorBg, 
             borderBottom: `1px solid ${C.border}`, 
-            padding: "12px 24px", 
+            padding: "12px 20px", 
             display: "flex", 
             alignItems: "center", 
-            gap: "12px", 
+            gap: "10px", 
             flexShrink: 0,
             flexWrap: "wrap",
-            minHeight: "56px"
+            minHeight: "52px"
           }}>
             <button onClick={onCancel} className="nb-btn"
-              style={{ display: "flex", alignItems: "center", gap: 6, background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, padding: "6px 12px", borderRadius: 7, fontSize: 12, cursor: "pointer" }}>
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, padding: "5px 10px", borderRadius: 6, fontSize: 12, cursor: "pointer" }}>
               <ArrowLeft size={13} /> Dashboard
             </button>
-            <span style={{ fontSize: "13px", color: C.textMid }}>{editing ? "Edit Article" : "New Article"}</span>
+            <span style={{ fontSize: "13px", color: C.textMid, fontWeight: 500 }}>{editing ? "Edit Article" : "New Article"}</span>
             {msg.text && (
-              <span style={{ fontSize: 12, color: msg.ok ? C.green : C.red, display: "flex", alignItems: "center", gap: 5 }}>
-                {msg.ok ? <CheckCircle size={13} /> : <AlertCircle size={13} />} {msg.text}
+              <span style={{ fontSize: 11, color: msg.ok ? C.green : C.red, display: "flex", alignItems: "center", gap: 4 }}>
+                {msg.ok ? <CheckCircle size={12} /> : <AlertCircle size={12} />} {msg.text}
               </span>
             )}
             <div style={{ flex: 1 }} />
             
+            {/* Mobile Sidebar Toggle */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="nb-sidebar-toggle nb-btn"
+              style={{ 
+                display: isMobile ? "flex" : "none",
+                alignItems: "center",
+                gap: 5,
+                background: sidebarOpen ? C.cyanGlow : "transparent",
+                border: `1px solid ${sidebarOpen ? C.cyanBorder : C.border}`,
+                color: sidebarOpen ? C.cyan : C.textMid,
+                padding: "5px 10px",
+                borderRadius: 6,
+                fontSize: 11,
+                cursor: "pointer"
+              }}
+            >
+              <Menu size={14} />
+              {sidebarOpen ? "Close" : "Options"}
+            </button>
+
             <button onClick={() => handleSave(true)} className="nb-btn"
-              style={{ padding: "6px 14px", border: `1px solid ${C.border}`, borderRadius: 7, background: "transparent", color: C.textMid, fontSize: 12, cursor: "pointer" }}>
+              style={{ padding: "5px 12px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", color: C.textMid, fontSize: 11, cursor: "pointer" }}>
               Save Draft
             </button>
             <button onClick={() => handleSave(false)} className="nb-btn"
-              style={{ padding: "7px 18px", background: C.cyan, border: "none", borderRadius: 7, color: "#040507", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+              style={{ padding: "6px 16px", background: C.cyan, border: "none", borderRadius: 6, color: "#040507", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
               {editing ? "Update" : "Publish"}
             </button>
           </div>
 
           {/* Title + permalink */}
-          <div style={{ padding: "20px 36px 0" }}>
+          <div style={{ padding: "16px 24px 0" }}>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}
               placeholder="Add title"
               className="nb-write-title"
-              style={{ width: "100%", background: "transparent", border: "none", borderBottom: `2px solid ${title ? C.border : C.textFaint}`, outline: "none", fontSize: "32px", fontWeight: 900, fontFamily: serif, color: C.white, padding: "0 0 12px", marginBottom: 12, transition: "border-color .2s" }}
+              style={{ width: "100%", background: "transparent", border: "none", borderBottom: `2px solid ${title ? C.border : C.textFaint}`, outline: "none", fontSize: "28px", fontWeight: 900, fontFamily: serif, color: C.white, padding: "0 0 10px", marginBottom: 10, transition: "border-color .2s" }}
               onFocus={e => e.target.style.borderColor = C.cyan}
               onBlur={e => e.target.style.borderColor = title ? C.border : C.textFaint} />
-            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, fontSize: 12, color: C.textMid, flexWrap: "wrap" }}>
+            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14, fontSize: 12, color: C.textMid, flexWrap: "wrap" }}>
               <span style={{ fontWeight: 600 }}>Permalink:</span>
               <span style={{ color: C.cyan, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, padding: "2px 10px", borderRadius: 4, fontFamily: "monospace", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
                 /blog/<span style={{ color: C.white }}>{slug}</span>
@@ -591,8 +615,8 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
 
           {/* Toolbar */}
-          <div style={{ padding: "0 36px 0" }}>
-            <div className="nb-write-toolbar" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 3, padding: "8px 12px", background: C.nav, border: `1px solid ${C.border}`, borderRadius: "8px 8px 0 0" }}>
+          <div style={{ padding: "0 24px 0" }}>
+            <div className="nb-write-toolbar" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 2, padding: "6px 10px", background: C.nav, border: `1px solid ${C.border}`, borderRadius: "8px 8px 0 0" }}>
               <TB cmd="formatBlock" val="p" label="¶" tt="Paragraph" />
               <TB cmd="formatBlock" val="h2" label="H2" tt="Heading 2" wide />
               <TB cmd="formatBlock" val="h3" label="H3" tt="Heading 3" wide />
@@ -613,29 +637,29 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               <TB cmd="removeFormat" Icon={Scissors} tt="Clear Formatting" />
             </div>
 
-            <div className="nb-write-toolbar-hint" style={{ background: "rgba(34,211,238,.04)", border: `1px solid ${C.border}`, borderTop: "none", padding: "7px 14px", display: "flex", alignItems: "center", gap: 8 }}>
-              <ImageIcon size={13} style={{ color: C.cyanDim, flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: C.textMid }}>
-                You can also <strong style={{ color: C.text }}>drag & drop</strong> images directly into the editor, or <strong style={{ color: C.text }}>paste</strong> screenshots with Ctrl+V
+            <div className="nb-write-toolbar-hint" style={{ background: "rgba(34,211,238,.04)", border: `1px solid ${C.border}`, borderTop: "none", padding: "5px 12px", display: "flex", alignItems: "center", gap: 6 }}>
+              <ImageIcon size={12} style={{ color: C.cyanDim, flexShrink: 0 }} />
+              <span style={{ fontSize: 10, color: C.textMid }}>
+                Drag & drop images or paste screenshots (Ctrl+V)
               </span>
             </div>
           </div>
 
           {/* Content editable */}
-          <div className="nb-write-editor" style={{ flex: 1, padding: "0 36px 20px", overflowY: "auto", minHeight: 0 }}>
+          <div className="nb-write-editor" style={{ flex: 1, padding: "0 24px 16px", overflowY: "auto", minHeight: 0 }}>
             <div
               ref={editorRef}
               contentEditable suppressContentEditableWarning
               className="nb-editor nb-write-content"
-              data-placeholder={"Start writing your article here…\n\nTip: drag & drop or paste images directly. Use the toolbar for formatting. Ctrl+B bold · Ctrl+I italic · Ctrl+K link."}
+              data-placeholder={"Start writing your article here…\n\nTip: drag & drop or paste images directly."}
               onInput={() => { checkFmts(); refreshExcerpt(); }}
               onKeyDown={handleKeyDown}
               onMouseUp={checkFmts} onKeyUp={checkFmts}
               onPaste={handlePaste}
               onDrop={handleEditorDrop}
-              style={{ padding: "24px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", minHeight: "400px" }}
+              style={{ padding: "20px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 8px 8px", minHeight: "350px" }}
             />
-            <p style={{ margin: "8px 0 0", fontSize: 11, color: C.textFaint }}>
+            <p style={{ margin: "6px 0 0", fontSize: 10, color: C.textFaint }}>
               Ctrl+B bold · Ctrl+I italic · Ctrl+U underline · Ctrl+K link · Ctrl+V paste image
             </p>
           </div>
@@ -662,26 +686,26 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           }}>
             {/* PUBLISH */}
             <SidebarPanel title="Publish" defaultOpen={true}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, fontSize: 13 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, fontSize: 12 }}>
                 <span style={{ color: C.textMid }}>Status</span>
-                <span style={{ color: C.green, fontWeight: 600, fontSize: 12 }}>● {editing ? "Published" : "Draft"}</span>
+                <span style={{ color: C.green, fontWeight: 600, fontSize: 11 }}>● {editing ? "Published" : "Draft"}</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, fontSize: 13 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, fontSize: 12 }}>
                 <span style={{ color: C.textMid }}>Visibility</span>
-                <span style={{ color: C.text, fontSize: 12 }}>🌐 Public</span>
+                <span style={{ color: C.text, fontSize: 11 }}>🌐 Public</span>
               </div>
-              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 12, display: "flex", gap: 8, marginBottom: 10 }}>
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 10, display: "flex", gap: 6, marginBottom: 8 }}>
                 <button onClick={() => handleSave(true)} className="nb-btn"
-                  style={{ flex: 1, padding: "8px", border: `1px solid ${C.border}`, borderRadius: 7, background: "transparent", color: C.textMid, fontSize: 12, cursor: "pointer" }}>
+                  style={{ flex: 1, padding: "6px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", color: C.textMid, fontSize: 11, cursor: "pointer" }}>
                   Save Draft
                 </button>
                 {editing && <a href={`/blog/${editing.id}`} target="_blank" rel="noopener noreferrer"
-                  style={{ flex: 1, padding: "8px", border: `1px solid ${C.border}`, borderRadius: 7, background: "transparent", color: C.textMid, fontSize: 12, cursor: "pointer", textDecoration: "none", textAlign: "center" }}>
+                  style={{ flex: 1, padding: "6px", border: `1px solid ${C.border}`, borderRadius: 6, background: "transparent", color: C.textMid, fontSize: 11, cursor: "pointer", textDecoration: "none", textAlign: "center" }}>
                   Preview
                 </a>}
               </div>
               <button onClick={() => handleSave(false)} className="nb-btn"
-                style={{ width: "100%", padding: "11px", background: saved ? C.cyanDim : C.cyan, border: "none", borderRadius: 8, color: "#040507", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+                style={{ width: "100%", padding: "9px", background: saved ? C.cyanDim : C.cyan, border: "none", borderRadius: 6, color: "#040507", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                 {saved ? "✓ Saved!" : editing ? "Update Article" : "Publish Article"}
               </button>
             </SidebarPanel>
@@ -691,9 +715,9 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
 
             {/* CATEGORIES */}
             <SidebarPanel title="Categories" defaultOpen={true}>
-              <div style={{ maxHeight: 180, overflowY: "auto", display: "flex", flexDirection: "column", gap: 7 }}>
+              <div style={{ maxHeight: 160, overflowY: "auto", display: "flex", flexDirection: "column", gap: 5 }}>
                 {categories.map(cat => (
-                  <label key={cat} style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", fontSize: 13, padding: "2px 0" }}>
+                  <label key={cat} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 12, padding: "2px 0" }}>
                     <input type="checkbox" checked={selCats.includes(cat)}
                       onChange={e => { if (e.target.checked) setSelCats(v => [...v, cat]); else setSelCats(v => v.filter(c => c !== cat)); }} />
                     <span style={{ color: C.text }}>{cat}</span>
@@ -705,58 +729,75 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             {/* TAGS */}
             <SidebarPanel title="Tags" defaultOpen={false}>
               {tags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 10 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
                   {tags.map(t => (
-                    <span key={t} style={{ display: "flex", alignItems: "center", gap: 4, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, color: C.cyan, fontSize: 11, padding: "2px 9px", borderRadius: 20 }}>
+                    <span key={t} style={{ display: "flex", alignItems: "center", gap: 3, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, color: C.cyan, fontSize: 10, padding: "2px 8px", borderRadius: 20 }}>
                       {t}
-                      <button onClick={() => setTags(v => v.filter(x => x !== t))} style={{ background: "transparent", border: "none", color: C.cyanDim, cursor: "pointer", padding: 0, display: "flex" }}><X size={10} /></button>
+                      <button onClick={() => setTags(v => v.filter(x => x !== t))} style={{ background: "transparent", border: "none", color: C.cyanDim, cursor: "pointer", padding: 0, display: "flex" }}><X size={9} /></button>
                     </span>
                   ))}
                 </div>
               )}
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 5 }}>
                 <input type="text" value={tagInput} placeholder="Add tag…"
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-                  style={{ flex: 1, padding: "8px 10px", background: "#060A0F", border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, outline: "none", color: C.white, fontFamily: "inherit" }} />
+                  style={{ flex: 1, padding: "6px 8px", background: "#060A0F", border: `1px solid ${C.border}`, borderRadius: 5, fontSize: 11, outline: "none", color: C.white, fontFamily: "inherit" }} />
                 <button onClick={addTag} className="nb-btn"
-                  style={{ padding: "8px 12px", background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, borderRadius: 7, color: C.cyan, fontSize: 12, cursor: "pointer" }}>
+                  style={{ padding: "6px 10px", background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, borderRadius: 5, color: C.cyan, fontSize: 11, cursor: "pointer" }}>
                   Add
                 </button>
               </div>
-              <p style={{ margin: "7px 0 0", fontSize: 10, color: C.textMid }}>Separate with comma or Enter</p>
+              <p style={{ margin: "5px 0 0", fontSize: 9, color: C.textMid }}>Comma or Enter to add</p>
             </SidebarPanel>
 
             {/* EXCERPT */}
             <SidebarPanel title="Excerpt" defaultOpen={false}>
-              <p style={{ margin: "0 0 8px", fontSize: 11, color: C.textMid, lineHeight: 1.5 }}>
-                {customEx ? "Custom excerpt:" : "Auto-generated from first paragraph:"}
+              <p style={{ margin: "0 0 6px", fontSize: 10, color: C.textMid, lineHeight: 1.4 }}>
+                {customEx ? "Custom excerpt:" : "Auto-generated:"}
               </p>
-              <textarea value={excerpt} rows={4}
+              <textarea value={excerpt} rows={3}
                 onChange={e => { setExcerpt(e.target.value); setCustomEx(true); }}
                 placeholder="Write a custom excerpt…"
-                style={{ ...inp, resize: "vertical", fontSize: 12, lineHeight: 1.6 }} />
+                style={{ ...inp, resize: "vertical", fontSize: 11, lineHeight: 1.5, padding: "6px 8px" }} />
               {customEx && (
                 <button onClick={() => setCustomEx(false)} className="nb-btn"
-                  style={{ marginTop: 6, fontSize: 11, color: C.cyan, background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>
-                  ↺ Reset to auto-generated
+                  style={{ marginTop: 4, fontSize: 10, color: C.cyan, background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>
+                  ↺ Reset to auto
                 </button>
               )}
             </SidebarPanel>
 
             {/* ATTRIBUTES */}
             <SidebarPanel title="Post Attributes" defaultOpen={true}>
-              <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "flex-start", gap: 8, cursor: "pointer" }}>
                 <input type="checkbox" checked={isBreaking} onChange={e => setBrk(e.target.checked)} style={{ marginTop: 2 }} />
                 <div>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: C.white }}>Breaking News</p>
-                  <p style={{ margin: "3px 0 0", fontSize: 11, color: C.textMid }}>Adds red badge + includes in live ticker</p>
+                  <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: C.white }}>Breaking News</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 10, color: C.textMid }}>Red badge + live ticker</p>
                 </div>
               </label>
             </SidebarPanel>
           </div>
         </div>
       </div>
+
+      {/* Mobile overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.5)",
+            zIndex: 99,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0
+          }}
+        />
+      )}
     </>
   );
 }
