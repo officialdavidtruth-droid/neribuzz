@@ -95,16 +95,16 @@ input[type=checkbox]{accent-color:#22D3EE;width:15px;height:15px;cursor:pointer}
   .nb-write-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #1A2535 !important; max-height: 60vh !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; z-index: 100 !important; border-radius: 16px 16px 0 0 !important; background: #070A0F !important; }
   .nb-write-sidebar-closed { display: none !important; }
   .nb-write-sidebar-open { display: flex !important; }
-  .nb-write-topbar { gap: 4px !important; padding: 4px 8px !important; min-height: 36px !important; flex-wrap: wrap !important; }
-  .nb-write-topbar .nb-btn { font-size: 9px !important; padding: 3px 6px !important; }
-  .nb-write-topbar .nb-label { font-size: 9px !important; }
+  .nb-write-topbar { gap: 4px !important; padding: 6px 8px !important; min-height: 44px !important; flex-wrap: wrap !important; }
+  .nb-write-topbar .nb-btn { font-size: 11px !important; padding: 4px 8px !important; }
+  .nb-write-topbar .nb-label { font-size: 11px !important; }
 }
 @media (max-width: 480px) {
   .nb-admin-topbar-left .nb-brand { font-size: 14px !important; }
-  .nb-admin-topbar-right .nb-btn { font-size: 9px !important; padding: 3px 6px !important; }
+  .nb-admin-topbar-right .nb-btn { font-size: 10px !important; padding: 3px 6px !important; }
   .nb-write-title { font-size: 18px !important; }
   .nb-write-sidebar { max-height: 55vh !important; }
-  .nb-write-topbar .nb-btn { font-size: 8px !important; padding: 2px 5px !important; }
+  .nb-write-topbar .nb-btn { font-size: 10px !important; padding: 3px 6px !important; }
 }
 @media (min-width: 769px) {
   .nb-sidebar-toggle { display: none !important; }
@@ -549,30 +549,28 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           paddingTop: 0
         }}>
 
-          {/* Sticky top bar - Mobile optimized */}
+          {/* Sticky top bar */}
           <div className="nb-write-topbar" style={{ 
             position: "sticky", 
             top: 0, 
             zIndex: 10, 
             background: C.editorBg, 
             borderBottom: `1px solid ${C.border}`, 
-            padding: isMobile ? "4px 8px" : "12px 20px", 
+            padding: isMobile ? "6px 10px" : "12px 20px", 
             display: "flex", 
             alignItems: "center", 
-            gap: isMobile ? "4px" : "10px", 
+            gap: isMobile ? "6px" : "10px", 
             flexShrink: 0,
             flexWrap: "wrap",
-            minHeight: isMobile ? "36px" : "52px",
-            justifyContent: isMobile ? "flex-start" : "flex-start"
+            minHeight: isMobile ? "48px" : "52px",
+            justifyContent: "flex-start"
           }}>
             <button onClick={onCancel} className="nb-btn"
-              style={{ display: "flex", alignItems: "center", gap: isMobile ? 2 : 4, background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, padding: isMobile ? "2px 6px" : "5px 10px", borderRadius: isMobile ? 4 : 5, fontSize: isMobile ? 9 : 12, cursor: "pointer", flexShrink: 0 }}>
-              <ArrowLeft size={isMobile ? 10 : 13} /> {isMobile ? "" : "Dashboard"}
+              style={{ display: "flex", alignItems: "center", gap: isMobile ? 4 : 4, background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, padding: isMobile ? "4px 10px" : "5px 12px", borderRadius: 5, fontSize: isMobile ? 11 : 12, cursor: "pointer", flexShrink: 0 }}>
+              <ArrowLeft size={isMobile ? 14 : 13} /> Dashboard
             </button>
             
-            {!isMobile && (
-              <span style={{ fontSize: "13px", color: C.textMid, fontWeight: 500, flexShrink: 0 }}>{editing ? "Edit Article" : "New Article"}</span>
-            )}
+            <span style={{ fontSize: isMobile ? "11px" : "13px", color: C.textMid, fontWeight: 500, flexShrink: 0 }}>{editing ? "Edit Article" : "New Article"}</span>
             
             {msg.text && !isMobile && (
               <span style={{ fontSize: 11, color: msg.ok ? C.green : C.red, display: "flex", alignItems: "center", gap: 4 }}>
@@ -589,58 +587,58 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               style={{ 
                 display: isMobile ? "flex" : "none",
                 alignItems: "center",
-                gap: isMobile ? 3 : 4,
+                gap: 4,
                 background: sidebarOpen ? C.cyanGlow : "transparent",
                 border: `1px solid ${sidebarOpen ? C.cyanBorder : C.border}`,
                 color: sidebarOpen ? C.cyan : C.textMid,
-                padding: isMobile ? "2px 6px" : "5px 10px",
-                borderRadius: isMobile ? 4 : 5,
-                fontSize: isMobile ? 9 : 11,
+                padding: isMobile ? "4px 10px" : "5px 12px",
+                borderRadius: 5,
+                fontSize: isMobile ? 11 : 12,
                 cursor: "pointer",
                 flexShrink: 0
               }}
             >
-              <Menu size={isMobile ? 12 : 16} />
-              {isMobile ? (sidebarOpen ? "Close" : "Opts") : "Options"}
+              <Menu size={isMobile ? 16 : 16} />
+              {sidebarOpen ? "Close" : "Options"}
             </button>
 
             <button onClick={() => handleSave(true)} className="nb-btn"
-              style={{ padding: isMobile ? "2px 8px" : "5px 12px", border: `1px solid ${C.border}`, borderRadius: isMobile ? 4 : 5, background: "transparent", color: C.textMid, fontSize: isMobile ? 9 : 11, cursor: "pointer", flexShrink: 0 }}>
-              {isMobile ? "Draft" : "Save Draft"}
+              style={{ padding: isMobile ? "4px 10px" : "5px 12px", border: `1px solid ${C.border}`, borderRadius: 5, background: "transparent", color: C.textMid, fontSize: isMobile ? 11 : 12, cursor: "pointer", flexShrink: 0 }}>
+              Save Draft
             </button>
             <button onClick={() => handleSave(false)} className="nb-btn"
-              style={{ padding: isMobile ? "3px 10px" : "6px 16px", background: C.cyan, border: "none", borderRadius: isMobile ? 4 : 5, color: "#040507", fontSize: isMobile ? 10 : 12, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
-              {isMobile ? (editing ? "Upd" : "Pub") : (editing ? "Update" : "Publish")}
+              style={{ padding: isMobile ? "4px 12px" : "6px 16px", background: C.cyan, border: "none", borderRadius: 5, color: "#040507", fontSize: isMobile ? 11 : 12, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>
+              {editing ? "Update" : "Publish"}
             </button>
           </div>
 
           {/* Mobile message */}
           {msg.text && isMobile && (
-            <div style={{ padding: "4px 10px", fontSize: 10, color: msg.ok ? C.green : C.red, display: "flex", alignItems: "center", gap: 4, background: msg.ok ? "rgba(52,211,153,.08)" : "rgba(239,68,68,.08)" }}>
-              {msg.ok ? <CheckCircle size={10} /> : <AlertCircle size={10} />} {msg.text}
+            <div style={{ padding: "6px 12px", fontSize: 11, color: msg.ok ? C.green : C.red, display: "flex", alignItems: "center", gap: 4, background: msg.ok ? "rgba(52,211,153,.08)" : "rgba(239,68,68,.08)" }}>
+              {msg.ok ? <CheckCircle size={12} /> : <AlertCircle size={12} />} {msg.text}
             </div>
           )}
 
           {/* Title + permalink */}
-          <div style={{ padding: isMobile ? "8px 10px 0" : "16px 24px 0" }}>
+          <div style={{ padding: isMobile ? "10px 12px 0" : "16px 24px 0" }}>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)}
               placeholder="Add title"
               className="nb-write-title"
-              style={{ width: "100%", background: "transparent", border: "none", borderBottom: `2px solid ${title ? C.border : C.textFaint}`, outline: "none", fontSize: isMobile ? "20px" : "28px", fontWeight: 900, fontFamily: serif, color: C.white, padding: "0 0 6px", marginBottom: 6, transition: "border-color .2s" }}
+              style={{ width: "100%", background: "transparent", border: "none", borderBottom: `2px solid ${title ? C.border : C.textFaint}`, outline: "none", fontSize: isMobile ? "22px" : "28px", fontWeight: 900, fontFamily: serif, color: C.white, padding: "0 0 8px", marginBottom: 8, transition: "border-color .2s" }}
               onFocus={e => e.target.style.borderColor = C.cyan}
               onBlur={e => e.target.style.borderColor = title ? C.border : C.textFaint} />
-            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: isMobile ? 4 : 6, marginBottom: isMobile ? 6 : 10, fontSize: isMobile ? 9 : 12, color: C.textMid, flexWrap: "wrap" }}>
+            <div className="nb-write-permalink" style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 6, marginBottom: isMobile ? 8 : 10, fontSize: isMobile ? 10 : 12, color: C.textMid, flexWrap: "wrap" }}>
               <span style={{ fontWeight: 600 }}>Permalink:</span>
-              <span style={{ color: C.cyan, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, padding: isMobile ? "1px 6px" : "2px 8px", borderRadius: 4, fontFamily: "monospace", fontSize: isMobile ? 8 : 11, overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
+              <span style={{ color: C.cyan, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, padding: isMobile ? "2px 8px" : "2px 10px", borderRadius: 4, fontFamily: "monospace", fontSize: isMobile ? 9 : 11, overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>
                 /blog/<span style={{ color: C.white }}>{slug}</span>
               </span>
-              {editing && <a href={`/blog/${editing.id}`} target="_blank" rel="noopener noreferrer" style={{ color: C.textMid, display: "flex", alignItems: "center", gap: 2, textDecoration: "none", fontSize: isMobile ? 8 : 11 }}><ExternalLink size={isMobile ? 8 : 11} /> View</a>}
+              {editing && <a href={`/blog/${editing.id}`} target="_blank" rel="noopener noreferrer" style={{ color: C.textMid, display: "flex", alignItems: "center", gap: 3, textDecoration: "none", fontSize: isMobile ? 9 : 11 }}><ExternalLink size={isMobile ? 10 : 11} /> View</a>}
             </div>
           </div>
 
           {/* Toolbar */}
-          <div style={{ padding: isMobile ? "0 6px" : "0 24px 0" }}>
-            <div className="nb-write-toolbar" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: isMobile ? 1 : 2, padding: isMobile ? "3px 4px" : "6px 10px", background: C.nav, border: `1px solid ${C.border}`, borderRadius: isMobile ? "4px 4px 0 0" : "6px 6px 0 0" }}>
+          <div style={{ padding: isMobile ? "0 8px" : "0 24px 0" }}>
+            <div className="nb-write-toolbar" style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: isMobile ? 1 : 2, padding: isMobile ? "4px 6px" : "6px 10px", background: C.nav, border: `1px solid ${C.border}`, borderRadius: isMobile ? "4px 4px 0 0" : "6px 6px 0 0" }}>
               <TB cmd="formatBlock" val="p" label="¶" tt="Paragraph" />
               <TB cmd="formatBlock" val="h2" label="H2" tt="Heading 2" wide />
               <TB cmd="formatBlock" val="h3" label="H3" tt="Heading 3" wide />
@@ -661,7 +659,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               <TB cmd="removeFormat" Icon={Scissors} tt="Clear" />
             </div>
 
-            <div className="nb-write-toolbar-hint" style={{ background: "rgba(34,211,238,.04)", border: `1px solid ${C.border}`, borderTop: "none", padding: isMobile ? "3px 6px" : "5px 12px", display: isMobile ? "none" : "flex", alignItems: "center", gap: 6 }}>
+            <div className="nb-write-toolbar-hint" style={{ background: "rgba(34,211,238,.04)", border: `1px solid ${C.border}`, borderTop: "none", padding: isMobile ? "4px 8px" : "5px 12px", display: isMobile ? "none" : "flex", alignItems: "center", gap: 6 }}>
               <ImageIcon size={12} style={{ color: C.cyanDim, flexShrink: 0 }} />
               <span style={{ fontSize: 10, color: C.textMid }}>
                 Drag & drop images or paste screenshots (Ctrl+V)
@@ -670,7 +668,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           </div>
 
           {/* Content editable */}
-          <div className="nb-write-editor" style={{ flex: 1, padding: isMobile ? "0 6px 8px" : "0 24px 16px", overflowY: "auto", minHeight: 0 }}>
+          <div className="nb-write-editor" style={{ flex: 1, padding: isMobile ? "0 8px 8px" : "0 24px 16px", overflowY: "auto", minHeight: 0 }}>
             <div
               ref={editorRef}
               contentEditable suppressContentEditableWarning
@@ -681,9 +679,9 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               onMouseUp={checkFmts} onKeyUp={checkFmts}
               onPaste={handlePaste}
               onDrop={handleEditorDrop}
-              style={{ padding: isMobile ? "12px" : "20px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 6px 6px", minHeight: isMobile ? "180px" : "350px" }}
+              style={{ padding: isMobile ? "14px" : "20px", background: C.card, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 6px 6px", minHeight: isMobile ? "200px" : "350px" }}
             />
-            <p style={{ margin: "4px 0 0", fontSize: isMobile ? 8 : 10, color: C.textFaint }}>
+            <p style={{ margin: "4px 0 0", fontSize: isMobile ? 9 : 10, color: C.textFaint }}>
               Ctrl+B bold · Ctrl+I italic · Ctrl+U underline · Ctrl+K link · Ctrl+V paste image
             </p>
           </div>
@@ -700,7 +698,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           display: isMobile ? (sidebarOpen ? "flex" : "none") : "flex",
           flexDirection: "column",
           height: isMobile ? "auto" : "100%",
-          maxHeight: isMobile ? "55vh" : "100%",
+          maxHeight: isMobile ? "60vh" : "100%",
           position: isMobile ? "fixed" : "relative",
           bottom: isMobile ? 0 : "auto",
           left: isMobile ? 0 : "auto",
@@ -717,7 +715,7 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
               display: "flex", 
               justifyContent: "space-between", 
               alignItems: "center",
-              padding: "10px 16px",
+              padding: "12px 16px",
               borderBottom: `1px solid ${C.border}`,
               flexShrink: 0,
               background: C.sidebarBg,
@@ -748,26 +746,26 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
           }}>
             {/* PUBLISH */}
             <SidebarPanel title="Publish" defaultOpen={true}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, fontSize: isMobile ? 10 : 12 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, fontSize: isMobile ? 11 : 12 }}>
                 <span style={{ color: C.textMid }}>Status</span>
-                <span style={{ color: C.green, fontWeight: 600, fontSize: isMobile ? 9 : 11 }}>● {editing ? "Published" : "Draft"}</span>
+                <span style={{ color: C.green, fontWeight: 600, fontSize: isMobile ? 10 : 11 }}>● {editing ? "Published" : "Draft"}</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, fontSize: isMobile ? 10 : 12 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, fontSize: isMobile ? 11 : 12 }}>
                 <span style={{ color: C.textMid }}>Visibility</span>
-                <span style={{ color: C.text, fontSize: isMobile ? 9 : 11 }}>🌐 Public</span>
+                <span style={{ color: C.text, fontSize: isMobile ? 10 : 11 }}>🌐 Public</span>
               </div>
-              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 6, display: "flex", gap: 4, marginBottom: 6 }}>
+              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, display: "flex", gap: 6, marginBottom: 8 }}>
                 <button onClick={() => handleSave(true)} className="nb-btn"
-                  style={{ flex: 1, padding: isMobile ? "4px" : "6px", border: `1px solid ${C.border}`, borderRadius: 4, background: "transparent", color: C.textMid, fontSize: isMobile ? 9 : 11, cursor: "pointer" }}>
+                  style={{ flex: 1, padding: isMobile ? "6px" : "6px", border: `1px solid ${C.border}`, borderRadius: 4, background: "transparent", color: C.textMid, fontSize: isMobile ? 10 : 11, cursor: "pointer" }}>
                   Save Draft
                 </button>
                 {editing && <a href={`/blog/${editing.id}`} target="_blank" rel="noopener noreferrer"
-                  style={{ flex: 1, padding: isMobile ? "4px" : "6px", border: `1px solid ${C.border}`, borderRadius: 4, background: "transparent", color: C.textMid, fontSize: isMobile ? 9 : 11, cursor: "pointer", textDecoration: "none", textAlign: "center" }}>
+                  style={{ flex: 1, padding: isMobile ? "6px" : "6px", border: `1px solid ${C.border}`, borderRadius: 4, background: "transparent", color: C.textMid, fontSize: isMobile ? 10 : 11, cursor: "pointer", textDecoration: "none", textAlign: "center" }}>
                   Preview
                 </a>}
               </div>
               <button onClick={() => handleSave(false)} className="nb-btn"
-                style={{ width: "100%", padding: isMobile ? "7px" : "9px", background: saved ? C.cyanDim : C.cyan, border: "none", borderRadius: 4, color: "#040507", fontSize: isMobile ? 11 : 13, fontWeight: 700, cursor: "pointer" }}>
+                style={{ width: "100%", padding: isMobile ? "8px" : "9px", background: saved ? C.cyanDim : C.cyan, border: "none", borderRadius: 4, color: "#040507", fontSize: isMobile ? 12 : 13, fontWeight: 700, cursor: "pointer" }}>
                 {saved ? "✓ Saved!" : editing ? "Update Article" : "Publish Article"}
               </button>
             </SidebarPanel>
@@ -777,9 +775,9 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
 
             {/* CATEGORIES */}
             <SidebarPanel title="Categories" defaultOpen={true}>
-              <div style={{ maxHeight: isMobile ? 100 : 160, overflowY: "auto", display: "flex", flexDirection: "column", gap: isMobile ? 2 : 5 }}>
+              <div style={{ maxHeight: isMobile ? 120 : 160, overflowY: "auto", display: "flex", flexDirection: "column", gap: isMobile ? 4 : 5 }}>
                 {categories.map(cat => (
-                  <label key={cat} style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer", fontSize: isMobile ? 10 : 12, padding: "1px 0" }}>
+                  <label key={cat} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: isMobile ? 11 : 12, padding: "2px 0" }}>
                     <input type="checkbox" checked={selCats.includes(cat)}
                       onChange={e => { if (e.target.checked) setSelCats(v => [...v, cat]); else setSelCats(v => v.filter(c => c !== cat)); }} />
                     <span style={{ color: C.text }}>{cat}</span>
@@ -791,52 +789,52 @@ function WriteArticle({ editing, categories, onSave, onCancel }) {
             {/* TAGS */}
             <SidebarPanel title="Tags" defaultOpen={false}>
               {tags.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 2, marginBottom: 4 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 6 }}>
                   {tags.map(t => (
-                    <span key={t} style={{ display: "flex", alignItems: "center", gap: 2, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, color: C.cyan, fontSize: isMobile ? 8 : 10, padding: "1px 5px", borderRadius: 20 }}>
+                    <span key={t} style={{ display: "flex", alignItems: "center", gap: 3, background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, color: C.cyan, fontSize: isMobile ? 9 : 10, padding: "2px 8px", borderRadius: 20 }}>
                       {t}
-                      <button onClick={() => setTags(v => v.filter(x => x !== t))} style={{ background: "transparent", border: "none", color: C.cyanDim, cursor: "pointer", padding: 0, display: "flex" }}><X size={7} /></button>
+                      <button onClick={() => setTags(v => v.filter(x => x !== t))} style={{ background: "transparent", border: "none", color: C.cyanDim, cursor: "pointer", padding: 0, display: "flex" }}><X size={8} /></button>
                     </span>
                   ))}
                 </div>
               )}
-              <div style={{ display: "flex", gap: 3 }}>
+              <div style={{ display: "flex", gap: 4 }}>
                 <input type="text" value={tagInput} placeholder="Add tag…"
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-                  style={{ flex: 1, padding: isMobile ? "3px 5px" : "6px 8px", background: "#060A0F", border: `1px solid ${C.border}`, borderRadius: 3, fontSize: isMobile ? 9 : 11, outline: "none", color: C.white, fontFamily: "inherit" }} />
+                  style={{ flex: 1, padding: isMobile ? "4px 6px" : "6px 8px", background: "#060A0F", border: `1px solid ${C.border}`, borderRadius: 4, fontSize: isMobile ? 10 : 11, outline: "none", color: C.white, fontFamily: "inherit" }} />
                 <button onClick={addTag} className="nb-btn"
-                  style={{ padding: isMobile ? "3px 6px" : "6px 10px", background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, borderRadius: 3, color: C.cyan, fontSize: isMobile ? 9 : 11, cursor: "pointer" }}>
+                  style={{ padding: isMobile ? "4px 8px" : "6px 10px", background: C.cyanGlow, border: `1px solid ${C.cyanBorder}`, borderRadius: 4, color: C.cyan, fontSize: isMobile ? 10 : 11, cursor: "pointer" }}>
                   Add
                 </button>
               </div>
-              <p style={{ margin: "3px 0 0", fontSize: isMobile ? 7 : 9, color: C.textMid }}>Comma or Enter to add</p>
+              <p style={{ margin: "4px 0 0", fontSize: isMobile ? 8 : 9, color: C.textMid }}>Comma or Enter to add</p>
             </SidebarPanel>
 
             {/* EXCERPT */}
             <SidebarPanel title="Excerpt" defaultOpen={false}>
-              <p style={{ margin: "0 0 3px", fontSize: isMobile ? 8 : 10, color: C.textMid, lineHeight: 1.3 }}>
-                {customEx ? "Custom:" : "Auto:"}
+              <p style={{ margin: "0 0 4px", fontSize: isMobile ? 9 : 10, color: C.textMid, lineHeight: 1.4 }}>
+                {customEx ? "Custom excerpt:" : "Auto-generated:"}
               </p>
               <textarea value={excerpt} rows={isMobile ? 2 : 3}
                 onChange={e => { setExcerpt(e.target.value); setCustomEx(true); }}
                 placeholder="Write a custom excerpt…"
-                style={{ ...inp, resize: "vertical", fontSize: isMobile ? 9 : 11, lineHeight: 1.3, padding: isMobile ? "3px 5px" : "6px 8px" }} />
+                style={{ ...inp, resize: "vertical", fontSize: isMobile ? 10 : 11, lineHeight: 1.4, padding: isMobile ? "4px 6px" : "6px 8px" }} />
               {customEx && (
                 <button onClick={() => setCustomEx(false)} className="nb-btn"
-                  style={{ marginTop: 3, fontSize: isMobile ? 8 : 10, color: C.cyan, background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>
-                  ↺ Reset
+                  style={{ marginTop: 4, fontSize: isMobile ? 9 : 10, color: C.cyan, background: "transparent", border: "none", cursor: "pointer", padding: 0 }}>
+                  ↺ Reset to auto
                 </button>
               )}
             </SidebarPanel>
 
             {/* ATTRIBUTES */}
             <SidebarPanel title="Post Attributes" defaultOpen={true}>
-              <label style={{ display: "flex", alignItems: "flex-start", gap: 5, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "flex-start", gap: 6, cursor: "pointer" }}>
                 <input type="checkbox" checked={isBreaking} onChange={e => setBrk(e.target.checked)} style={{ marginTop: 2 }} />
                 <div>
-                  <p style={{ margin: 0, fontSize: isMobile ? 10 : 12, fontWeight: 600, color: C.white }}>Breaking News</p>
-                  <p style={{ margin: "1px 0 0", fontSize: isMobile ? 8 : 10, color: C.textMid }}>Red badge + live ticker</p>
+                  <p style={{ margin: 0, fontSize: isMobile ? 11 : 12, fontWeight: 600, color: C.white }}>Breaking News</p>
+                  <p style={{ margin: "2px 0 0", fontSize: isMobile ? 9 : 10, color: C.textMid }}>Red badge + live ticker</p>
                 </div>
               </label>
             </SidebarPanel>
